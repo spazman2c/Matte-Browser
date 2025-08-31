@@ -39,5 +39,9 @@ dashmap = { workspace = true }
 criterion = { workspace = true, optional = true }
 clap = { version = "4.0", features = ["derive"] }
 
+# Extension support
+dirs = "5.0"
+
 [dev-dependencies]
 tokio-test = "0.4"
+tempfile = "3.0"

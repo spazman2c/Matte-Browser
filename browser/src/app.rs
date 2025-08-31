@@ -16,6 +16,7 @@ use crate::{
     tab_manager::TabManager,
     profile_manager::ProfileManager,
     settings_manager::SettingsManager,
+    extension_host::ExtensionHost,
 };
 
 /// Main browser application
@@ -31,6 +32,9 @@ pub struct BrowserApp {
     
     /// Settings manager
     settings_manager: Arc<RwLock<SettingsManager>>,
+    
+    /// Extension host
+    extension_host: Arc<RwLock<ExtensionHost>>,
     
     /// Browser statistics
     stats: Arc<RwLock<BrowserStats>>,
@@ -52,6 +56,7 @@ impl BrowserApp {
         let profile_manager = Arc::new(RwLock::new(ProfileManager::new().await?));
         let window_manager = Arc::new(RwLock::new(WindowManager::new().await?));
         let tab_manager = Arc::new(RwLock::new(TabManager::new().await?));
+        let extension_host = Arc::new(RwLock::new(ExtensionHost::new().await?));
         
         // Load settings
         let settings = {
@@ -69,6 +74,7 @@ impl BrowserApp {
             tab_manager,
             profile_manager,
             settings_manager,
+            extension_host,
             stats,
             settings,
             running: false,

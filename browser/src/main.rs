@@ -16,6 +16,7 @@ mod window_manager;
 mod tab_manager;
 mod profile_manager;
 mod settings_manager;
+mod extension_host;
 
 use app::BrowserApp;
 
