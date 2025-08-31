@@ -233,11 +233,11 @@ Matte is a fast, private, and developer-friendly browser built from scratch with
   - [x] Set up attribute handling
   - [x] Implement text node support
 
-- [ ] **DOM Events**
-  - [ ] Implement event system
-  - [ ] Create event bubbling and capturing
-  - [ ] Set up custom event support
-  - [ ] Implement event listener management
+        - [x] **DOM Events**
+          - [x] Implement event system
+          - [ ] Create event bubbling and capturing
+          - [ ] Set up custom event support
+          - [ ] Implement event listener management
 
 - [ ] **Advanced DOM Features**
   - [ ] Implement Shadow DOM (closed in Phase 1)

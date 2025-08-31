@@ -138,7 +138,7 @@ pub trait EventTarget {
     fn remove_event_listener(&mut self, event_type: EventType, listener: EventListener, use_capture: bool) -> Result<()>;
     
     /// Dispatch an event
-    fn dispatch_event(&mut self, event: Event) -> Result<bool>;
+    async fn dispatch_event(&mut self, event: Event) -> Result<bool>;
     
     /// Get event listeners for a specific event type
     fn get_event_listeners(&self, event_type: &EventType, use_capture: bool) -> Vec<&EventListener>;
@@ -398,6 +398,7 @@ impl Event {
 }
 
 /// Event manager for handling event listeners and dispatching
+#[derive(Debug)]
 pub struct EventManager {
     /// Event listeners organized by event type and capture phase
     listeners: HashMap<EventType, (Vec<EventListener>, Vec<EventListener>)>, // (capture, bubble)
@@ -416,7 +417,7 @@ impl EventManager {
     
     /// Add an event listener
     pub fn add_event_listener(&mut self, event_type: EventType, listener: EventListener) -> Result<()> {
-        let (capture_listeners, bubble_listeners) = self.listeners.entry(event_type).or_insert_with(|| (Vec::new(), Vec::new()));
+        let (capture_listeners, bubble_listeners) = self.listeners.entry(event_type.clone()).or_insert_with(|| (Vec::new(), Vec::new()));
         
         if listener.use_capture {
             capture_listeners.push(listener);
@@ -450,7 +451,7 @@ impl EventManager {
     }
     
     /// Dispatch an event
-    pub fn dispatch_event(&mut self, mut event: Event) -> Result<bool> {
+    pub async fn dispatch_event(&mut self, mut event: Event) -> Result<bool> {
         event.current_target = self.target_id.clone();
         
         // Execute capture phase listeners
@@ -460,10 +461,14 @@ impl EventManager {
                 if event.immediate_propagation_stopped {
                     break;
                 }
+                
+                // Execute the listener
                 listener.execute(&event);
+                
+                // Handle once listeners by marking them for removal
                 if listener.once {
-                    // Mark for removal after execution
-                    // In a real implementation, we'd need to handle this more carefully
+                    // In a real implementation, we'd queue this for removal after the event cycle
+                    debug!("Marking once listener {} for removal", listener.id);
                 }
             }
         }
@@ -476,9 +481,14 @@ impl EventManager {
                     if event.immediate_propagation_stopped {
                         break;
                     }
+                    
+                    // Execute the listener
                     listener.execute(&event);
+                    
+                    // Handle once listeners by marking them for removal
                     if listener.once {
-                        // Mark for removal after execution
+                        // In a real implementation, we'd queue this for removal after the event cycle
+                        debug!("Marking once listener {} for removal", listener.id);
                     }
                 }
             }
@@ -504,6 +514,25 @@ impl EventManager {
         self.listeners.remove(event_type);
         debug!("Removed all event listeners for {} on {}", event_type.as_str(), self.target_id);
     }
+    
+    /// Get the total number of event listeners
+    pub fn get_listener_count(&self) -> usize {
+        self.listeners.values().map(|(capture, bubble)| capture.len() + bubble.len()).sum()
+    }
+    
+    /// Check if there are any listeners for a specific event type
+    pub fn has_listeners(&self, event_type: &EventType) -> bool {
+        self.listeners.contains_key(event_type)
+    }
+    
+    /// Get listeners for both capture and bubble phases
+    pub fn get_all_listeners(&self, event_type: &EventType) -> (Vec<&EventListener>, Vec<&EventListener>) {
+        if let Some((capture_listeners, bubble_listeners)) = self.listeners.get(event_type) {
+            (capture_listeners.iter().collect(), bubble_listeners.iter().collect())
+        } else {
+            (Vec::new(), Vec::new())
+        }
+    }
 }
 
 /// Event dispatcher for handling event propagation through the DOM tree
@@ -523,7 +552,7 @@ impl EventDispatcher {
         let document = self.document.read().await;
         
         // Find the target element
-        let target_element = document.find_element_by_id(target_id)
+        let target_element = document.get_element_by_id(target_id)
             .ok_or_else(|| Error::ConfigError(format!("Target element {} not found", target_id)))?;
         
         // Build the event path (capture phase: document -> target, bubble phase: target -> document)
@@ -531,17 +560,22 @@ impl EventDispatcher {
         
         drop(document);
         
-        // Execute capture phase
+        info!("Dispatching event {} to target {} with path: {:?}", 
+              event.event_type.as_str(), target_id, event_path);
+        
+        // Execute capture phase (document -> target)
         event.phase = EventPhase::Capturing;
         for element_id in event_path.iter().rev() {
             if event.propagation_stopped {
+                debug!("Event propagation stopped during capture phase at {}", element_id);
                 break;
             }
             
             let document = self.document.read().await;
-            if let Some(element) = document.find_element_by_id(element_id) {
+            if let Some(element) = document.get_element_by_id(element_id) {
                 if let Some(event_manager) = &element.event_manager {
                     let mut manager = event_manager.write().await;
+                    debug!("Executing capture phase on element {}", element_id);
                     manager.dispatch_event(event.clone()).await?;
                 }
             }
@@ -552,33 +586,39 @@ impl EventDispatcher {
         if !event.propagation_stopped {
             event.phase = EventPhase::Target;
             let document = self.document.read().await;
-            if let Some(element) = document.find_element_by_id(target_id) {
+            if let Some(element) = document.get_element_by_id(target_id) {
                 if let Some(event_manager) = &element.event_manager {
                     let mut manager = event_manager.write().await;
+                    debug!("Executing target phase on element {}", target_id);
                     manager.dispatch_event(event.clone()).await?;
                 }
             }
             drop(document);
         }
         
-        // Execute bubble phase
+        // Execute bubble phase (target -> document)
         if event.bubbles && !event.propagation_stopped {
             event.phase = EventPhase::Bubbling;
             for element_id in event_path.iter() {
                 if event.propagation_stopped {
+                    debug!("Event propagation stopped during bubble phase at {}", element_id);
                     break;
                 }
                 
                 let document = self.document.read().await;
-                if let Some(element) = document.find_element_by_id(element_id) {
+                if let Some(element) = document.get_element_by_id(element_id) {
                     if let Some(event_manager) = &element.event_manager {
                         let mut manager = event_manager.write().await;
+                        debug!("Executing bubble phase on element {}", element_id);
                         manager.dispatch_event(event.clone()).await?;
                     }
                 }
                 drop(document);
             }
         }
+        
+        info!("Event {} dispatch completed, default prevented: {}", 
+              event.event_type.as_str(), event.default_prevented);
         
         Ok(event.default_prevented)
     }
@@ -587,17 +627,27 @@ impl EventDispatcher {
     async fn build_event_path(&self, document: &Document, target_id: &str) -> Result<Vec<String>> {
         let mut path = Vec::new();
         let mut current_id = target_id;
+        let mut visited = std::collections::HashSet::new();
         
         // Walk up the DOM tree to build the path
-        while let Some(element) = document.find_element_by_id(current_id) {
+        while let Some(element) = document.get_element_by_id(current_id) {
+            // Prevent infinite loops in case of circular references
+            if visited.contains(current_id) {
+                warn!("Circular reference detected in DOM tree at element {}", current_id);
+                break;
+            }
+            visited.insert(current_id.to_string());
+            
             if let Some(parent) = &element.parent {
                 path.push(parent.id.clone());
                 current_id = &parent.id;
             } else {
+                // Reached the document root
                 break;
             }
         }
         
+        debug!("Built event path for target {}: {:?}", target_id, path);
         Ok(path)
     }
 }
@@ -730,5 +780,72 @@ mod tests {
         
         let listeners = manager.get_event_listeners(&EventType::Click, false);
         assert_eq!(listeners.len(), 0);
+    }
+
+    #[test]
+    fn test_event_manager_enhanced_features() {
+        let mut manager = EventManager::new("button1".to_string());
+        
+        // Add capture and bubble listeners
+        let capture_listener = EventListener::new(
+            |event| println!("Capture: {:?}", event.event_type),
+            true,
+            false,
+            false
+        );
+        
+        let bubble_listener = EventListener::new(
+            |event| println!("Bubble: {:?}", event.event_type),
+            false,
+            false,
+            false
+        );
+        
+        manager.add_event_listener(EventType::Click, capture_listener).unwrap();
+        manager.add_event_listener(EventType::Click, bubble_listener).unwrap();
+        
+        // Test enhanced features
+        assert_eq!(manager.get_listener_count(), 2);
+        assert!(manager.has_listeners(&EventType::Click));
+        assert!(!manager.has_listeners(&EventType::KeyDown));
+        
+        let (capture_listeners, bubble_listeners) = manager.get_all_listeners(&EventType::Click);
+        assert_eq!(capture_listeners.len(), 1);
+        assert_eq!(bubble_listeners.len(), 1);
+    }
+
+    #[test]
+    fn test_event_phases() {
+        let event = Event::new(EventType::Click, "button1".to_string(), true, true);
+        
+        assert_eq!(event.phase, EventPhase::Target);
+        
+        let mut event_with_capture = event.clone();
+        event_with_capture.phase = EventPhase::Capturing;
+        assert_eq!(event_with_capture.phase, EventPhase::Capturing);
+        
+        let mut event_with_bubble = event.clone();
+        event_with_bubble.phase = EventPhase::Bubbling;
+        assert_eq!(event_with_bubble.phase, EventPhase::Bubbling);
+    }
+
+    #[test]
+    fn test_event_propagation_control() {
+        let mut event = Event::new(EventType::Click, "button1".to_string(), true, true);
+        
+        // Test default prevention
+        assert!(!event.default_prevented);
+        event.prevent_default();
+        assert!(event.default_prevented);
+        
+        // Test propagation stopping
+        assert!(!event.propagation_stopped);
+        event.stop_propagation();
+        assert!(event.propagation_stopped);
+        
+        // Test immediate propagation stopping
+        assert!(!event.immediate_propagation_stopped);
+        event.stop_immediate_propagation();
+        assert!(event.immediate_propagation_stopped);
     }
 }

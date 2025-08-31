@@ -578,6 +578,7 @@ impl EventTarget for Element {
     /// Add an event listener
     fn add_event_listener(&mut self, event_type: EventType, listener: EventListener, use_capture: bool) -> Result<()> {
         if let Some(event_manager) = &self.event_manager {
+            // For now, we'll use blocking operations since the trait doesn't support async
             let mut manager = event_manager.blocking_write();
             manager.add_event_listener(event_type, listener)
         } else {
@@ -588,6 +589,7 @@ impl EventTarget for Element {
     /// Remove an event listener
     fn remove_event_listener(&mut self, event_type: EventType, listener: EventListener, use_capture: bool) -> Result<()> {
         if let Some(event_manager) = &self.event_manager {
+            // For now, we'll use blocking operations since the trait doesn't support async
             let mut manager = event_manager.blocking_write();
             manager.remove_event_listener(event_type, &listener.id, use_capture)
         } else {
@@ -596,10 +598,10 @@ impl EventTarget for Element {
     }
     
     /// Dispatch an event
-    fn dispatch_event(&mut self, event: Event) -> Result<bool> {
+    async fn dispatch_event(&mut self, event: Event) -> Result<bool> {
         if let Some(event_manager) = &self.event_manager {
-            let mut manager = event_manager.blocking_write();
-            manager.dispatch_event(event)
+            let mut manager = event_manager.write().await;
+            manager.dispatch_event(event).await
         } else {
             Err(Error::ConfigError("Event manager not available".to_string()))
         }
@@ -608,6 +610,7 @@ impl EventTarget for Element {
     /// Get event listeners for a specific event type
     fn get_event_listeners(&self, event_type: &EventType, use_capture: bool) -> Vec<&EventListener> {
         if let Some(event_manager) = &self.event_manager {
+            // For now, we'll use blocking operations since the trait doesn't support async
             let manager = event_manager.blocking_read();
             manager.get_event_listeners(event_type, use_capture)
         } else {
