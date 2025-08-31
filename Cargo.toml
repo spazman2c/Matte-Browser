@@ -60,6 +60,7 @@ parking_lot = "0.12"
 url = "2.4"
 regex = "1.9"
 lazy_static = "1.4"
+uuid = "1.0"
 
 # Development and testing
 criterion = "0.5"

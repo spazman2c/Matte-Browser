@@ -24,7 +24,7 @@ pub fn generate_uuid() -> String {
     let id = generate_id();
     
     (timestamp, id).hash(&mut hasher);
-    format!("{:x}", hasher.finish())
+    format!("{:016x}", hasher.finish())
 }
 
 /// Parse a URL string into components

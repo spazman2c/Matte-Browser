@@ -151,7 +151,7 @@ pub struct SourceLocation {
 }
 
 /// Style sheet
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct StyleSheet {
     /// Style sheet ID
     pub id: String,
@@ -188,7 +188,7 @@ impl StyleEngineManager {
         info!("Creating style engine manager");
         
         Ok(Self {
-            tokenizer: CssTokenizer::new(),
+            tokenizer: CssTokenizer::new(""),
             css_rules: Vec::new(),
             computed_styles_cache: std::collections::HashMap::new(),
             style_sheets: Vec::new(),
@@ -218,7 +218,8 @@ impl StyleEngineManager {
         self.computed_styles_cache.clear();
         
         // Process all style sheets
-        for style_sheet in &self.style_sheets {
+        let style_sheets = self.style_sheets.clone();
+        for style_sheet in &style_sheets {
             if style_sheet.enabled {
                 self.process_style_sheet(style_sheet).await?;
             }
@@ -250,7 +251,7 @@ impl StyleEngineManager {
     pub async fn add_style_sheet(&mut self, css_content: &str, url: Option<&str>) -> Result<String> {
         info!("Adding style sheet");
         
-        let style_sheet_id = format!("stylesheet_{}", uuid::Uuid::new_v4());
+        let style_sheet_id = format!("stylesheet_{}", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos());
         
         // Parse CSS content
         let rules = self.parse_css(css_content).await?;
@@ -303,8 +304,7 @@ impl StyleEngineManager {
         debug!("Parsing CSS content");
         
         let mut rules = Vec::new();
-        let mut tokenizer = CssTokenizer::new();
-        tokenizer.set_input(css_content);
+        let mut tokenizer = CssTokenizer::new(css_content);
         
         // TODO: Implement actual CSS parsing
         // For now, create a simple rule
@@ -453,7 +453,7 @@ impl StyleEngineManager {
         match value {
             CssValue::Keyword(keyword) => Value::String(keyword.clone()),
             CssValue::String(s) => Value::String(s.clone()),
-            CssValue::Number(n) => Value::Number(serde_json::Number::from_f64(*n).unwrap_or_default()),
+            CssValue::Number(n) => Value::Number(serde_json::Number::from_f64(*n).unwrap_or_else(|| serde_json::Number::from(0))),
             CssValue::Length(value, unit) => {
                 let unit_str = match unit {
                     LengthUnit::Px => "px",

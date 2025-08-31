@@ -1,7 +1,7 @@
 //! DOM integration for renderer processes
 
 use common::error::Result;
-use dom::{Document, Element, Node, NodeType};
+use dom::{Document, Element, Node, TextNode};
 use serde_json::Value;
 use tracing::{debug, error, info, warn};
 
@@ -24,7 +24,6 @@ pub struct DomIntegrationManager {
 }
 
 /// DOM event listener
-#[derive(Debug)]
 pub struct DomEventListener {
     /// Element ID
     pub element_id: String,
@@ -40,7 +39,6 @@ pub struct DomEventListener {
 }
 
 /// Mutation observer
-#[derive(Debug)]
 pub struct MutationObserver {
     /// Observer ID
     pub observer_id: String,
@@ -172,7 +170,7 @@ impl DomIntegrationManager {
         if let Some(document) = &self.document {
             Ok(self.serialize_document(document))
         } else {
-            Err(common::error::Error::StateError(
+            Err(common::error::Error::ConfigError(
                 "No document loaded".to_string()
             ))
         }
@@ -187,7 +185,7 @@ impl DomIntegrationManager {
                 Ok(None)
             }
         } else {
-            Err(common::error::Error::StateError(
+            Err(common::error::Error::ConfigError(
                 "No document loaded".to_string()
             ))
         }
@@ -199,7 +197,7 @@ impl DomIntegrationManager {
             let elements = document.get_elements_by_tag_name(tag_name);
             Ok(elements.iter().map(|e| self.serialize_element(e)).collect())
         } else {
-            Err(common::error::Error::StateError(
+            Err(common::error::Error::ConfigError(
                 "No document loaded".to_string()
             ))
         }
@@ -211,7 +209,7 @@ impl DomIntegrationManager {
             let elements = document.get_elements_by_class_name(class_name);
             Ok(elements.iter().map(|e| self.serialize_element(e)).collect())
         } else {
-            Err(common::error::Error::StateError(
+            Err(common::error::Error::ConfigError(
                 "No document loaded".to_string()
             ))
         }
@@ -298,7 +296,7 @@ impl DomIntegrationManager {
     where
         F: Fn(Vec<MutationRecord>) + Send + Sync + 'static,
     {
-        let observer_id = format!("observer_{}", uuid::Uuid::new_v4());
+        let observer_id = format!("observer_{}", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos());
         
         let observer = MutationObserver {
             observer_id: observer_id.clone(),
@@ -361,34 +359,27 @@ impl DomIntegrationManager {
         
         let mut document = Document::new();
         
-        // Create root element
-        let html_element = Element::new("html".to_string());
-        let html_node = Node::new(NodeType::Element(html_element));
-        document.set_document_element(html_node);
-        
         // Create head element
-        let head_element = Element::new("head".to_string());
-        let head_node = Node::new(NodeType::Element(head_element));
-        document.document_element().unwrap().append_child(head_node);
+        let mut head_element = Element::new("head".to_string());
         
         // Create title element
-        let title_element = Element::new("title".to_string());
-        let title_text = Node::new(NodeType::Text("Test Page".to_string()));
+        let mut title_element = Element::new("title".to_string());
+        let title_text = Node::Text(TextNode::new("Test Page".to_string()));
         title_element.append_child(title_text);
-        let title_node = Node::new(NodeType::Element(title_element));
-        document.document_element().unwrap().first_child().unwrap().append_child(title_node);
+        head_element.append_child(Node::Element(title_element));
         
         // Create body element
-        let body_element = Element::new("body".to_string());
-        let body_node = Node::new(NodeType::Element(body_element));
-        document.document_element().unwrap().append_child(body_node);
+        let mut body_element = Element::new("body".to_string());
         
         // Create h1 element
-        let h1_element = Element::new("h1".to_string());
-        let h1_text = Node::new(NodeType::Text("Hello, World!".to_string()));
+        let mut h1_element = Element::new("h1".to_string());
+        let h1_text = Node::Text(TextNode::new("Hello, World!".to_string()));
         h1_element.append_child(h1_text);
-        let h1_node = Node::new(NodeType::Element(h1_element));
-        document.document_element().unwrap().last_child().unwrap().append_child(h1_node);
+        body_element.append_child(Node::Element(h1_element));
+        
+        // Add head and body to root
+        document.root.append_child(Node::Element(head_element));
+        document.root.append_child(Node::Element(body_element));
         
         self.document = Some(document);
         
@@ -399,11 +390,7 @@ impl DomIntegrationManager {
     fn serialize_document(&self, document: &Document) -> Value {
         serde_json::json!({
             "type": "document",
-            "documentElement": if let Some(root) = document.document_element() {
-                self.serialize_node(root)
-            } else {
-                Value::Null
-            }
+            "documentElement": self.serialize_node(&Node::Element(document.root.clone()))
         })
     }
     
@@ -411,31 +398,31 @@ impl DomIntegrationManager {
     fn serialize_element(&self, element: &Element) -> Value {
         serde_json::json!({
             "type": "element",
-            "tagName": element.tag_name(),
-            "id": element.get_attribute("id"),
-            "className": element.get_attribute("class"),
-            "attributes": element.attributes(),
-            "children": element.children().iter().map(|child| self.serialize_node(child)).collect::<Vec<_>>()
+            "tagName": element.tag_name.clone(),
+            "id": element.get_attribute("id").cloned(),
+            "className": element.get_attribute("class").cloned(),
+            "attributes": element.attributes.clone(),
+            "children": element.children.iter().map(|child| self.serialize_node(child)).collect::<Vec<_>>()
         })
     }
     
     /// Serialize node to JSON
     fn serialize_node(&self, node: &Node) -> Value {
-        match &node.node_type {
-            NodeType::Element(element) => self.serialize_element(element),
-            NodeType::Text(text) => serde_json::json!({
+        match node {
+            Node::Element(element) => self.serialize_element(element),
+            Node::Text(text) => serde_json::json!({
                 "type": "text",
-                "textContent": text
+                "textContent": text.content.clone()
             }),
-            NodeType::Comment(comment) => serde_json::json!({
+            Node::Comment(comment) => serde_json::json!({
                 "type": "comment",
-                "textContent": comment
+                "textContent": comment.content.clone()
             }),
-            NodeType::DocumentType(doctype) => serde_json::json!({
+            Node::DocumentType(doctype) => serde_json::json!({
                 "type": "doctype",
-                "name": doctype.name(),
-                "publicId": doctype.public_id(),
-                "systemId": doctype.system_id()
+                "name": doctype.name.clone(),
+                "publicId": doctype.public_id.clone(),
+                "systemId": doctype.system_id.clone()
             }),
         }
     }

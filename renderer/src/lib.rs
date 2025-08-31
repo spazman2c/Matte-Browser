@@ -1,6 +1,6 @@
 //! Renderer process for the Matte browser
 
-use common::{error::Result, TabId, WindowId};
+use common::{error::Result, TabId};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -174,7 +174,7 @@ impl RendererProcessManager {
         
         // Check if we've reached the process limit
         if self.processes.len() >= self.config.max_processes {
-            return Err(common::error::Error::ResourceError(
+            return Err(common::error::Error::ConfigError(
                 "Maximum number of renderer processes reached".to_string()
             ));
         }
@@ -186,7 +186,7 @@ impl RendererProcessManager {
         let process = RendererProcess {
             process_id,
             tab_id,
-            state: RendererState::Starting,
+            state: RendererState::Ready,
             site_isolation: Arc::new(RwLock::new(SiteIsolationManager::new(site_url).await?)),
             dom_integration: Arc::new(RwLock::new(DomIntegrationManager::new().await?)),
             style_engine: Arc::new(RwLock::new(StyleEngineManager::new().await?)),
@@ -466,7 +466,7 @@ mod tests {
         let config = RendererConfig::default();
         let mut manager = RendererProcessManager::new(config).await.unwrap();
         
-        let tab_id = TabId::new();
+        let tab_id = TabId::new(1);
         let process_id = manager.create_process(tab_id, "https://example.com").await;
         assert!(process_id.is_ok());
         
@@ -482,8 +482,8 @@ mod tests {
         };
         let mut manager = RendererProcessManager::new(config).await.unwrap();
         
-        let tab_id1 = TabId::new();
-        let tab_id2 = TabId::new();
+        let tab_id1 = TabId::new(1);
+        let tab_id2 = TabId::new(2);
         
         let process_id1 = manager.get_or_create_process(tab_id1, "https://example.com").await.unwrap();
         let process_id2 = manager.get_or_create_process(tab_id2, "https://example.com").await.unwrap();
@@ -505,8 +505,8 @@ mod tests {
         };
         let mut manager = RendererProcessManager::new(config).await.unwrap();
         
-        let tab_id1 = TabId::new();
-        let tab_id2 = TabId::new();
+        let tab_id1 = TabId::new(1);
+        let tab_id2 = TabId::new(2);
         
         let process_id1 = manager.create_process(tab_id1, "https://example.com").await;
         assert!(process_id1.is_ok());

@@ -75,12 +75,12 @@ Matte is a fast, private, and developer-friendly browser built from scratch with
   - [x] Create profile/settings management
   - [x] Implement extension host framework
 
-- [ ] **Renderer Process (Per-site)**
-  - [ ] Create renderer process skeleton
-  - [ ] Implement site isolation framework
-  - [ ] Set up DOM parser integration points
-  - [ ] Create style/layout engine integration
-  - [ ] Set up JavaScript VM integration
+- [x] **Renderer Process (Per-site)**
+  - [x] Create renderer process skeleton
+  - [x] Implement site isolation framework
+  - [x] Set up DOM parser integration points
+  - [x] Create style/layout engine integration
+  - [x] Set up JavaScript VM integration
 
 - [ ] **Network Process**
   - [ ] Create network process skeleton

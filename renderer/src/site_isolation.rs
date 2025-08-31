@@ -76,7 +76,7 @@ pub struct SiteSecurityContext {
 }
 
 /// Security level for a site
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Copy)]
 pub enum SecurityLevel {
     /// Trusted site (local files, browser UI)
     Trusted,
@@ -292,7 +292,7 @@ impl SiteIsolationManager {
             ));
         }
         
-        let channel_id = format!("channel_{}", uuid::Uuid::new_v4());
+        let channel_id = format!("channel_{}", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos());
         
         let channel = CrossOriginChannel {
             target_origin: target_origin.to_string(),
@@ -475,7 +475,7 @@ impl SiteIsolationManager {
         
         // Only update if security level is the same or higher
         if new_context.security_level as u8 >= self.security_context.security_level as u8 {
-            self.security_context = new_context;
+            self.security_context = new_context.clone();
         }
         
         Ok(())
@@ -499,7 +499,7 @@ impl SiteIsolationManager {
     async fn record_violation(&mut self, violation_type: ViolationType, details: String, blocked: bool) {
         let violation = SecurityViolation {
             violation_type,
-            details,
+            details: details.clone(),
             timestamp: std::time::SystemTime::now(),
             blocked,
         };
