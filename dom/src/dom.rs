@@ -4,8 +4,11 @@
 //! for representing HTML documents as a tree of nodes.
 
 use crate::error::{Error, Result};
+use crate::events::{EventManager, EventTarget, EventType, EventListener, Event};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::sync::Arc;
+use tokio::sync::RwLock;
 
 /// DOM node types
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -21,7 +24,7 @@ pub enum Node {
 }
 
 /// HTML element
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct Element {
     /// Tag name (e.g., "div", "p", "span")
     pub tag_name: String,
@@ -29,15 +32,25 @@ pub struct Element {
     pub attributes: HashMap<String, String>,
     /// Child nodes
     pub children: Vec<Node>,
+    /// Element ID
+    pub id: String,
+    /// Parent element reference
+    pub parent: Option<Arc<RwLock<Element>>>,
+    /// Event manager for this element
+    pub event_manager: Option<Arc<RwLock<EventManager>>>,
 }
 
 impl Element {
     /// Create a new element
     pub fn new(tag_name: String) -> Self {
+        let id = format!("element_{}", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos());
         Self {
             tag_name,
             attributes: HashMap::new(),
             children: Vec::new(),
+            id,
+            parent: None,
+            event_manager: Some(Arc::new(RwLock::new(EventManager::new(id.clone())))),
         }
     }
 
@@ -558,5 +571,47 @@ mod tests {
         assert!(html.contains("src=\"test.jpg\""));
         assert!(html.contains("/>"));
         assert!(!html.contains("</img>"));
+    }
+}
+
+impl EventTarget for Element {
+    /// Add an event listener
+    fn add_event_listener(&mut self, event_type: EventType, listener: EventListener, use_capture: bool) -> Result<()> {
+        if let Some(event_manager) = &self.event_manager {
+            let mut manager = event_manager.blocking_write();
+            manager.add_event_listener(event_type, listener)
+        } else {
+            Err(Error::ConfigError("Event manager not available".to_string()))
+        }
+    }
+    
+    /// Remove an event listener
+    fn remove_event_listener(&mut self, event_type: EventType, listener: EventListener, use_capture: bool) -> Result<()> {
+        if let Some(event_manager) = &self.event_manager {
+            let mut manager = event_manager.blocking_write();
+            manager.remove_event_listener(event_type, &listener.id, use_capture)
+        } else {
+            Err(Error::ConfigError("Event manager not available".to_string()))
+        }
+    }
+    
+    /// Dispatch an event
+    fn dispatch_event(&mut self, event: Event) -> Result<bool> {
+        if let Some(event_manager) = &self.event_manager {
+            let mut manager = event_manager.blocking_write();
+            manager.dispatch_event(event)
+        } else {
+            Err(Error::ConfigError("Event manager not available".to_string()))
+        }
+    }
+    
+    /// Get event listeners for a specific event type
+    fn get_event_listeners(&self, event_type: &EventType, use_capture: bool) -> Vec<&EventListener> {
+        if let Some(event_manager) = &self.event_manager {
+            let manager = event_manager.blocking_read();
+            manager.get_event_listeners(event_type, use_capture)
+        } else {
+            Vec::new()
+        }
     }
 }

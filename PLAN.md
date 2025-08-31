@@ -82,17 +82,17 @@ Matte is a fast, private, and developer-friendly browser built from scratch with
   - [x] Create style/layout engine integration
   - [x] Set up JavaScript VM integration
 
-- [ ] **Network Process**
-  - [ ] Create network process skeleton
-  - [ ] Implement TLS handling framework
-  - [ ] Set up HTTP client structure
-  - [ ] Create cache management framework
+- [x] **Network Process**
+  - [x] Create network process skeleton
+  - [x] Implement TLS handling framework
+  - [x] Set up HTTP client structure
+  - [x] Create cache management framework
 
-- [ ] **GPU/Compositor Process**
-  - [ ] Create GPU process skeleton
-  - [ ] Set up compositor framework
-  - [ ] Implement display list structure
-  - [ ] Create tiled raster framework
+- [x] **GPU/Compositor Process**
+  - [x] Create GPU process skeleton
+  - [x] Set up compositor framework
+  - [x] Implement display list structure
+  - [x] Create tiled raster framework
 
 #### IPC Framework
 - [x] **Message Schema**

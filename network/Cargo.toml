@@ -10,3 +10,8 @@ categories.workspace = true
 
 [dependencies]
 common = { path = "../common" }
+tokio = { workspace = true }
+tracing = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+url = "2.0"
