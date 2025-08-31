@@ -11,7 +11,7 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 
 /// DOM node types
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Node {
     /// Element node (HTML tags)
     Element(Element),
@@ -212,8 +212,18 @@ impl Element {
     }
 }
 
+impl PartialEq for Element {
+    fn eq(&self, other: &Self) -> bool {
+        self.tag_name == other.tag_name &&
+        self.attributes == other.attributes &&
+        self.children == other.children &&
+        self.id == other.id
+        // Note: parent and event_manager are not compared as they contain RwLock
+    }
+}
+
 /// Text node
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct TextNode {
     /// Text content
     pub content: String,
@@ -237,7 +247,7 @@ impl TextNode {
 }
 
 /// Comment node
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct CommentNode {
     /// Comment content
     pub content: String,
@@ -251,7 +261,7 @@ impl CommentNode {
 }
 
 /// Document type node
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct DocumentTypeNode {
     /// Document type name
     pub name: String,

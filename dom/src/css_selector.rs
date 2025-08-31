@@ -48,7 +48,7 @@ impl Specificity {
 }
 
 /// CSS pseudo-class types
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum PseudoClass {
     /// :hover
     Hover,
@@ -81,7 +81,7 @@ pub enum PseudoClass {
 }
 
 /// CSS pseudo-element types
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum PseudoElement {
     /// ::before
     Before,
@@ -98,7 +98,7 @@ pub enum PseudoElement {
 }
 
 /// CSS attribute selector operators
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum AttributeOperator {
     /// [attr]
     Exists,
@@ -117,7 +117,7 @@ pub enum AttributeOperator {
 }
 
 /// CSS attribute selector
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct AttributeSelector {
     /// Attribute name
     pub name: String,
@@ -130,7 +130,7 @@ pub struct AttributeSelector {
 }
 
 /// CSS simple selector
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct SimpleSelector {
     /// Element type (tag name)
     pub element_type: Option<String>,
@@ -191,7 +191,7 @@ impl SimpleSelector {
 }
 
 /// CSS combinator types
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Combinator {
     /// Descendant combinator (space)
     Descendant,
@@ -204,7 +204,7 @@ pub enum Combinator {
 }
 
 /// CSS compound selector (simple selector + pseudo-elements)
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct CompoundSelector {
     /// Simple selector
     pub simple: SimpleSelector,
@@ -223,14 +223,14 @@ impl CompoundSelector {
 }
 
 /// CSS complex selector (compound selectors with combinators)
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ComplexSelector {
     /// Compound selectors and combinators
     pub parts: Vec<ComplexSelectorPart>,
 }
 
 /// Part of a complex selector (compound selector or combinator)
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum ComplexSelectorPart {
     /// Compound selector
     Compound(CompoundSelector),

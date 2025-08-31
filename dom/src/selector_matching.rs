@@ -6,9 +6,9 @@
 
 use std::collections::{HashMap, HashSet};
 use tracing::debug;
-use crate::error::{Error, Result};
-use crate::css_selector::{SelectorList, ComplexSelector, ComplexSelectorPart, SimpleSelector, Specificity, PseudoClass, PseudoElement, AttributeSelector, AttributeOperator, Combinator};
-use crate::dom::{Element, Node, Document};
+use crate::css_selector::{ComplexSelector, ComplexSelectorPart, SimpleSelector, Specificity, PseudoClass, PseudoElement, AttributeSelector, AttributeOperator};
+use crate::dom::Element;
+use crate::pseudo_classes::PseudoClassEvaluator;
 
 /// Selector matching result
 #[derive(Debug, Clone, PartialEq)]
@@ -83,6 +83,8 @@ pub struct SelectorMatcher {
     all_selectors: Vec<ComplexSelector>,
     /// Bloom filter for ancestor hints
     bloom_filter: AncestorBloomFilter,
+    /// Pseudo-class evaluator
+    pseudo_class_evaluator: PseudoClassEvaluator,
 }
 
 impl SelectorMatcher {
@@ -94,6 +96,7 @@ impl SelectorMatcher {
             id_index: HashMap::new(),
             all_selectors: Vec::new(),
             bloom_filter: AncestorBloomFilter::new(1024, 3),
+            pseudo_class_evaluator: PseudoClassEvaluator::new(),
         }
     }
     
@@ -216,7 +219,7 @@ impl SelectorMatcher {
         // Check classes
         for selector_class in &selector.classes {
             let element_classes = self.get_element_classes(element);
-            if !element_classes.contains(selector_class) {
+            if !element_classes.contains(&selector_class.as_str()) {
                 return false;
             }
         }
@@ -323,11 +326,8 @@ impl SelectorMatcher {
     }
     
     /// Check if a pseudo-class matches an element
-    fn matches_pseudo_class(&self, _element: &Element, _pseudo_class: &PseudoClass) -> bool {
-        // This is a placeholder implementation
-        // In a real implementation, this would check various pseudo-class conditions
-        // such as :hover, :active, :focus, :first-child, etc.
-        true
+    fn matches_pseudo_class(&self, element: &Element, pseudo_class: &PseudoClass) -> bool {
+        self.pseudo_class_evaluator.evaluate_pseudo_class(element, pseudo_class)
     }
     
     /// Check if a pseudo-element matches an element
@@ -365,7 +365,7 @@ impl SelectorMatcher {
     }
     
     /// Get element classes
-    fn get_element_classes(&self, element: &Element) -> Vec<&str> {
+    fn get_element_classes<'a>(&self, element: &'a Element) -> Vec<&'a str> {
         if let Some(class_attr) = element.attributes.get("class") {
             class_attr.split_whitespace().collect()
         } else {
@@ -374,8 +374,18 @@ impl SelectorMatcher {
     }
     
     /// Get element ID
-    fn get_element_id(&self, element: &Element) -> Option<&str> {
+    fn get_element_id<'a>(&self, element: &'a Element) -> Option<&'a str> {
         element.attributes.get("id").map(|s| s.as_str())
+    }
+    
+    /// Get the pseudo-class evaluator
+    pub fn pseudo_class_evaluator(&self) -> &PseudoClassEvaluator {
+        &self.pseudo_class_evaluator
+    }
+    
+    /// Get the pseudo-class evaluator mutably
+    pub fn pseudo_class_evaluator_mut(&mut self) -> &mut PseudoClassEvaluator {
+        &mut self.pseudo_class_evaluator
     }
 }
 
@@ -395,7 +405,7 @@ impl FastPathMatcher {
     /// Create a new fast path matcher
     pub fn new() -> Self {
         Self {
-            universal_matcher: Box::new(|_| true),
+            universal_matcher: Box::new(|_| false),
             tag_matcher: Box::new(|_| false),
             class_matcher: Box::new(|_| false),
             id_matcher: Box::new(|_| false),
@@ -446,7 +456,7 @@ impl FastPathMatcher {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::css_selector::{CssSelectorParser, SelectorList};
+    use crate::css_selector::CssSelectorParser;
 
     #[test]
     fn test_selector_matcher_creation() {

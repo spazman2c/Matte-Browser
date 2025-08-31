@@ -21,4 +21,22 @@ pub use traversal::{NodeIterator, TreeWalker, NodeFilter, NodeFilterFn, BreadthF
 pub use css_tokenizer::{CssToken, CssTokenizer};
 pub use css_selector::{CssSelectorParser, SelectorList, ComplexSelector, SimpleSelector, Specificity, PseudoClass, PseudoElement, AttributeSelector, Combinator};
 pub use cssom::{CssStyleSheet, CssStyleRule, CssDeclaration, CssValue, CssRule, CssRuleType, ComputedValue, CssCascade};
+
+pub mod selector_matching;
+pub use selector_matching::{SelectorMatcher, FastPathMatcher, AncestorBloomFilter, MatchResult};
+
+pub mod pseudo_classes;
+pub use pseudo_classes::{PseudoClassEvaluator, PseudoClassEventHandler, ElementState};
+
+pub mod layout;
+pub use layout::{LayoutEngine, LayoutBox, BlockFormattingContext, InlineFormattingContext, LineBox, BoxType, PositionType, Display, Float, Clear, Dimensions, Position};
+
+pub mod flexbox;
+pub use flexbox::{FlexboxEngine, FlexContainer, FlexItem, FlexLine, FlexDirection, FlexWrap, JustifyContent, AlignItems, AlignContent, AlignSelf, FlexGrow, FlexShrink, FlexBasis, Order};
+
+pub mod typography;
+pub use typography::{FontManager, FontFace, FontFamily, FontWeight, FontStyle, FontStretch, FontMetrics, FontFallback, FontCacheEntry};
+
+pub mod text_shaping;
+pub use text_shaping::{TextShaper, ShapedGlyph, ShapedTextRun, CharProperties, CharCategory, BidiClass, TextDirection, LineBreakOpportunity, LineBreakType};
 pub use error::{Error, Result};

@@ -274,10 +274,10 @@ Matte is a fast, private, and developer-friendly browser built from scratch with
   - [x] Create cascade and inheritance
 
 #### Selector Engine
-- [ ] **Selector Matching**
-  - [ ] Implement O(N) matching algorithm
-  - [ ] Create bloom-filter ancestor hints
-  - [ ] Set up pseudo-class support (:hover, :active, :focus)
+- [x] **Selector Matching**
+  - [x] Implement O(N) matching algorithm
+  - [x] Create bloom-filter ancestor hints
+  - [x] Set up pseudo-class support (:hover, :active, :focus)
   - [ ] Implement :has() selector (later)
 
 - [ ] **Selector Optimization**
@@ -287,17 +287,17 @@ Matte is a fast, private, and developer-friendly browser built from scratch with
   - [ ] Create selector caching
 
 #### Layout Engine
-- [ ] **Block & Inline Layout**
-  - [ ] Implement block formatting contexts
-  - [ ] Create inline formatting contexts
-  - [ ] Set up float handling
-  - [ ] Implement absolute/fixed positioning
+- [x] **Block & Inline Layout**
+  - [x] Implement block formatting contexts
+  - [x] Create inline formatting contexts
+  - [x] Set up float handling
+  - [x] Implement absolute/fixed positioning
 
-- [ ] **Flexbox (Phase 1)**
-  - [ ] Implement flex container layout
-  - [ ] Create flex item sizing
-  - [ ] Set up flex alignment
-  - [ ] Implement flex wrapping
+- [x] **Flexbox (Phase 1)**
+  - [x] Implement flex container layout
+  - [x] Create flex item sizing
+  - [x] Set up flex alignment
+  - [x] Implement flex wrapping
 
 - [ ] **Grid Layout (Phase 2+)**
   - [ ] Design grid layout framework
@@ -306,11 +306,11 @@ Matte is a fast, private, and developer-friendly browser built from scratch with
   - [ ] Set up grid alignment
 
 #### Typography System
-- [ ] **Font Management**
-  - [ ] Implement font fallback system
-  - [ ] Create font loading framework
-  - [ ] Set up font metrics calculation
-  - [ ] Implement font caching
+- [x] **Font Management**
+  - [x] Implement font fallback system
+  - [x] Create font loading framework
+  - [x] Set up font metrics calculation
+  - [x] Implement font caching
 
 - [ ] **Text Shaping**
   - [ ] Integrate HarfBuzz or build text shaping
