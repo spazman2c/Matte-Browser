@@ -11,7 +11,7 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 
 /// DOM node types
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub enum Node {
     /// Element node (HTML tags)
     Element(Element),
@@ -48,9 +48,9 @@ impl Element {
             tag_name,
             attributes: HashMap::new(),
             children: Vec::new(),
-            id,
+            id: id.clone(),
             parent: None,
-            event_manager: Some(Arc::new(RwLock::new(EventManager::new(id.clone())))),
+            event_manager: Some(Arc::new(RwLock::new(EventManager::new(id)))),
         }
     }
 
@@ -273,7 +273,7 @@ impl DocumentTypeNode {
 }
 
 /// HTML document
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct Document {
     /// Document root element
     pub root: Element,
@@ -576,7 +576,7 @@ mod tests {
 
 impl EventTarget for Element {
     /// Add an event listener
-    fn add_event_listener(&mut self, event_type: EventType, listener: EventListener, use_capture: bool) -> Result<()> {
+    fn add_event_listener(&mut self, event_type: EventType, listener: EventListener, _use_capture: bool) -> Result<()> {
         if let Some(event_manager) = &self.event_manager {
             // For now, we'll use blocking operations since the trait doesn't support async
             let mut manager = event_manager.blocking_write();
@@ -608,7 +608,7 @@ impl EventTarget for Element {
     }
     
     /// Get event listeners for a specific event type
-    fn get_event_listeners(&self, event_type: &EventType, use_capture: bool) -> Vec<&EventListener> {
+    fn get_event_listeners(&self, event_type: &EventType, use_capture: bool) -> Vec<EventListener> {
         if let Some(event_manager) = &self.event_manager {
             // For now, we'll use blocking operations since the trait doesn't support async
             let manager = event_manager.blocking_read();

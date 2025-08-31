@@ -8,7 +8,7 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 use tracing::{debug, info, warn};
 use crate::error::{Error, Result};
-use crate::dom::{Node, Element, Document};
+use crate::dom::Document;
 
 /// Event phase enumeration
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -141,7 +141,7 @@ pub trait EventTarget {
     async fn dispatch_event(&mut self, event: Event) -> Result<bool>;
     
     /// Get event listeners for a specific event type
-    fn get_event_listeners(&self, event_type: &EventType, use_capture: bool) -> Vec<&EventListener>;
+    fn get_event_listeners(&self, event_type: &EventType, use_capture: bool) -> Vec<EventListener>;
 }
 
 /// Event listener function type
@@ -398,12 +398,20 @@ impl Event {
 }
 
 /// Event manager for handling event listeners and dispatching
-#[derive(Debug)]
 pub struct EventManager {
     /// Event listeners organized by event type and capture phase
     listeners: HashMap<EventType, (Vec<EventListener>, Vec<EventListener>)>, // (capture, bubble)
     /// Event target ID
     target_id: String,
+}
+
+impl std::fmt::Debug for EventManager {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("EventManager")
+            .field("target_id", &self.target_id)
+            .field("listener_count", &self.get_listener_count())
+            .finish()
+    }
 }
 
 impl EventManager {
@@ -441,10 +449,10 @@ impl EventManager {
     }
     
     /// Get event listeners for a specific event type and phase
-    pub fn get_event_listeners(&self, event_type: &EventType, use_capture: bool) -> Vec<&EventListener> {
+    pub fn get_event_listeners(&self, event_type: &EventType, use_capture: bool) -> Vec<EventListener> {
         if let Some((capture_listeners, bubble_listeners)) = self.listeners.get(event_type) {
             let listeners = if use_capture { capture_listeners } else { bubble_listeners };
-            listeners.iter().collect()
+            listeners.iter().cloned().collect()
         } else {
             Vec::new()
         }
@@ -526,9 +534,9 @@ impl EventManager {
     }
     
     /// Get listeners for both capture and bubble phases
-    pub fn get_all_listeners(&self, event_type: &EventType) -> (Vec<&EventListener>, Vec<&EventListener>) {
+    pub fn get_all_listeners(&self, event_type: &EventType) -> (Vec<EventListener>, Vec<EventListener>) {
         if let Some((capture_listeners, bubble_listeners)) = self.listeners.get(event_type) {
-            (capture_listeners.iter().collect(), bubble_listeners.iter().collect())
+            (capture_listeners.iter().cloned().collect(), bubble_listeners.iter().cloned().collect())
         } else {
             (Vec::new(), Vec::new())
         }
@@ -552,7 +560,7 @@ impl EventDispatcher {
         let document = self.document.read().await;
         
         // Find the target element
-        let target_element = document.get_element_by_id(target_id)
+        let _target_element = document.get_element_by_id(target_id)
             .ok_or_else(|| Error::ConfigError(format!("Target element {} not found", target_id)))?;
         
         // Build the event path (capture phase: document -> target, bubble phase: target -> document)
@@ -626,21 +634,26 @@ impl EventDispatcher {
     /// Build the event path from target to document root
     async fn build_event_path(&self, document: &Document, target_id: &str) -> Result<Vec<String>> {
         let mut path = Vec::new();
-        let mut current_id = target_id;
+        let mut current_id = target_id.to_string();
         let mut visited = std::collections::HashSet::new();
         
         // Walk up the DOM tree to build the path
-        while let Some(element) = document.get_element_by_id(current_id) {
+        while let Some(element) = document.get_element_by_id(&current_id) {
             // Prevent infinite loops in case of circular references
-            if visited.contains(current_id) {
+            if visited.contains(&current_id) {
                 warn!("Circular reference detected in DOM tree at element {}", current_id);
                 break;
             }
-            visited.insert(current_id.to_string());
+            visited.insert(current_id.clone());
             
             if let Some(parent) = &element.parent {
-                path.push(parent.id.clone());
-                current_id = &parent.id;
+                // Access the parent element through the Arc<RwLock>
+                let parent_id = {
+                    let parent_element = parent.blocking_read();
+                    parent_element.id.clone()
+                };
+                path.push(parent_id.clone());
+                current_id = parent_id;
             } else {
                 // Reached the document root
                 break;

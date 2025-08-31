@@ -235,15 +235,15 @@ Matte is a fast, private, and developer-friendly browser built from scratch with
 
         - [x] **DOM Events**
           - [x] Implement event system
-          - [ ] Create event bubbling and capturing
-          - [ ] Set up custom event support
-          - [ ] Implement event listener management
+          - [x] Create event bubbling and capturing
+          - [x] Set up custom event support
+          - [x] Implement event listener management
 
-- [ ] **Advanced DOM Features**
+- [x] **Advanced DOM Features**
   - [ ] Implement Shadow DOM (closed in Phase 1)
   - [ ] Create Custom Elements framework (Phase 2)
-  - [ ] Set up MutationObserver
-  - [ ] Implement DOM traversal APIs
+  - [x] Set up MutationObserver
+  - [x] Implement DOM traversal APIs
 
 #### Navigation System
 - [x] **Basic Navigation**
@@ -263,15 +263,15 @@ Matte is a fast, private, and developer-friendly browser built from scratch with
 #### CSS Parser
 - [x] **CSS Tokenization**
   - [x] Implement CSS tokenizer
-  - [ ] Create parser for selectors
+  - [x] Create parser for selectors
   - [ ] Set up property value parsing
   - [ ] Implement at-rule handling
 
-- [ ] **CSSOM**
-  - [ ] Create CSSStyleSheet interface
-  - [ ] Implement CSSRule hierarchy
-  - [ ] Set up computed value calculation
-  - [ ] Create cascade and inheritance
+- [x] **CSSOM**
+  - [x] Create CSSStyleSheet interface
+  - [x] Implement CSSRule hierarchy
+  - [x] Set up computed value calculation
+  - [x] Create cascade and inheritance
 
 #### Selector Engine
 - [ ] **Selector Matching**

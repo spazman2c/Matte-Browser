@@ -357,11 +357,11 @@ impl HtmlParser {
         self.finish_attribute()?;
         
         let tag_name = self.current_tag_name.to_lowercase();
-        let element = Element {
-            tag_name: tag_name.clone(),
-            attributes: self.pending_attributes.clone(),
-            children: Vec::new(),
-        };
+        let mut element = Element::new(tag_name.clone());
+        // Set attributes after creation
+        for (name, value) in &self.pending_attributes {
+            element.set_attribute(name.clone(), value.clone());
+        }
 
         // Handle self-closing tags
         if Self::is_self_closing_tag(&tag_name) {
@@ -381,11 +381,11 @@ impl HtmlParser {
         self.finish_attribute()?;
         
         let tag_name = self.current_tag_name.to_lowercase();
-        let element = Element {
-            tag_name: tag_name.clone(),
-            attributes: self.pending_attributes.clone(),
-            children: Vec::new(),
-        };
+        let mut element = Element::new(tag_name.clone());
+        // Set attributes after creation
+        for (name, value) in &self.pending_attributes {
+            element.set_attribute(name.clone(), value.clone());
+        }
 
         self.add_element_to_parent(element);
         self.current_tag_name.clear();
