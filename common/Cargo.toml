@@ -1,0 +1,42 @@
+[package]
+name = "common"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[dependencies]
+# Core dependencies
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+log = { workspace = true }
+
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true, features = ["env-filter", "local-time"] }
+tokio = { workspace = true, features = ["time", "sync"] }
+async-trait = "0.1"
+base64 = "0.21"
+
+# Platform and UI
+winit = { workspace = true }
+raw-window-handle = { workspace = true }
+
+# Memory and performance
+parking_lot = { workspace = true }
+
+# URL and text processing
+url = { workspace = true }
+regex = { workspace = true }
+lazy_static = { workspace = true }
+
+# Development and testing
+proptest = { workspace = true, optional = true }
+
+[features]
+default = []
+test-utils = ["proptest"]

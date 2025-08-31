@@ -1,0 +1,48 @@
+# Matte Browser Cross-Compilation Configuration
+# This file contains toolchain configurations for cross-compiling to different targets
+
+[target.x86_64-unknown-linux-gnu]
+linker = "x86_64-linux-gnu-gcc"
+ar = "x86_64-linux-gnu-ar"
+
+[target.x86_64-pc-windows-gnu]
+linker = "x86_64-w64-mingw32-gcc"
+ar = "x86_64-w64-mingw32-ar"
+
+[target.x86_64-apple-darwin]
+linker = "clang"
+ar = "ar"
+
+[target.aarch64-unknown-linux-gnu]
+linker = "aarch64-linux-gnu-gcc"
+ar = "aarch64-linux-gnu-ar"
+
+[target.aarch64-apple-darwin]
+linker = "clang"
+ar = "ar"
+
+# Windows MSVC targets
+[target.x86_64-pc-windows-msvc]
+linker = "link.exe"
+ar = "lib.exe"
+
+[target.i686-pc-windows-msvc]
+linker = "link.exe"
+ar = "lib.exe"
+
+# Android targets
+[target.aarch64-linux-android]
+linker = "aarch64-linux-android-clang"
+ar = "aarch64-linux-android-ar"
+
+[target.armv7-linux-androideabi]
+linker = "armv7a-linux-androideabi-clang"
+ar = "armv7a-linux-androideabi-ar"
+
+[target.i686-linux-android]
+linker = "i686-linux-android-clang"
+ar = "i686-linux-android-ar"
+
+[target.x86_64-linux-android]
+linker = "x86_64-linux-android-clang"
+ar = "x86_64-linux-android-ar"

@@ -1,0 +1,26 @@
+@PACKAGE_INIT@
+
+# Include the targets file
+include("${CMAKE_CURRENT_LIST_DIR}/MatteBrowserTargets.cmake")
+
+# Set variables for compatibility
+set(MatteBrowser_VERSION "@PROJECT_VERSION@")
+set(MatteBrowser_VERSION_MAJOR "@PROJECT_VERSION_MAJOR@")
+set(MatteBrowser_VERSION_MINOR "@PROJECT_VERSION_MINOR@")
+set(MatteBrowser_VERSION_PATCH "@PROJECT_VERSION_PATCH@")
+
+# Check if all required components are available
+check_required_components(MatteBrowser)
+
+# Set package properties
+set_property(TARGET MatteBrowser::matte_platform PROPERTY INTERFACE_COMPILE_FEATURES cxx_std_20)
+
+# Export package information
+set(MatteBrowser_FOUND TRUE)
+set(MatteBrowser_LIBRARIES MatteBrowser::matte_platform)
+set(MatteBrowser_INCLUDE_DIRS "@PACKAGE_INCLUDE_INSTALL_DIR@")
+
+# Print package information
+if(MatteBrowser_FIND_QUIETLY)
+    message(STATUS "Found MatteBrowser: @PACKAGE_PREFIX_DIR@ (found version ${MatteBrowser_VERSION})")
+endif()

@@ -1,0 +1,125 @@
+version: '3.8'
+
+services:
+  hermetic-build:
+    build:
+      context: .
+      dockerfile: Dockerfile.hermetic
+    volumes:
+      # Mount the source code
+      - .:/home/builder/matte-browser:ro
+      # Mount cargo cache for faster builds
+      - cargo-cache:/home/builder/.cargo/registry
+      - cargo-target:/home/builder/matte-browser/target
+    working_dir: /home/builder/matte-browser
+    environment:
+      # Build configuration
+      - BUILD_TYPE=release
+      - TARGET=x86_64-unknown-linux-gnu
+      # Rust configuration
+      - RUSTFLAGS=-C target-feature=+crt-static
+      - CARGO_INCREMENTAL=0
+      # Compiler configuration
+      - CFLAGS=-fPIC
+      - CXXFLAGS=-fPIC
+    command: >
+      bash -c "
+        echo 'Building Matte Browser in hermetic environment...' &&
+        echo 'Rust: $(rustc --version)' &&
+        echo 'Clang: $(clang --version | head -1)' &&
+        echo 'CMake: $(cmake --version | head -1)' &&
+        echo 'Target: $TARGET' &&
+        echo 'Build type: $BUILD_TYPE' &&
+        cargo build --target $TARGET --$BUILD_TYPE &&
+        cargo test --target $TARGET --$BUILD_TYPE &&
+        echo 'Build completed successfully!'
+      "
+
+  hermetic-build-debug:
+    build:
+      context: .
+      dockerfile: Dockerfile.hermetic
+    volumes:
+      - .:/home/builder/matte-browser:ro
+      - cargo-cache:/home/builder/.cargo/registry
+      - cargo-target:/home/builder/matte-browser/target
+    working_dir: /home/builder/matte-browser
+    environment:
+      - BUILD_TYPE=debug
+      - TARGET=x86_64-unknown-linux-gnu
+      - RUSTFLAGS=-C target-feature=+crt-static
+      - CARGO_INCREMENTAL=1
+      - CFLAGS=-fPIC
+      - CXXFLAGS=-fPIC
+    command: >
+      bash -c "
+        echo 'Building Matte Browser in hermetic environment (debug)...' &&
+        echo 'Rust: $(rustc --version)' &&
+        echo 'Clang: $(clang --version | head -1)' &&
+        echo 'CMake: $(cmake --version | head -1)' &&
+        echo 'Target: $TARGET' &&
+        echo 'Build type: $BUILD_TYPE' &&
+        cargo build --target $TARGET --$BUILD_TYPE &&
+        cargo test --target $TARGET --$BUILD_TYPE &&
+        echo 'Debug build completed successfully!'
+      "
+
+  hermetic-cross-build:
+    build:
+      context: .
+      dockerfile: Dockerfile.hermetic
+    volumes:
+      - .:/home/builder/matte-browser:ro
+      - cargo-cache:/home/builder/.cargo/registry
+      - cargo-target:/home/builder/matte-browser/target
+    working_dir: /home/builder/matte-browser
+    environment:
+      - BUILD_TYPE=release
+      - TARGET=aarch64-unknown-linux-gnu
+      - RUSTFLAGS=-C target-feature=+crt-static
+      - CARGO_INCREMENTAL=0
+      - CFLAGS=-fPIC
+      - CXXFLAGS=-fPIC
+    command: >
+      bash -c "
+        echo 'Cross-building Matte Browser for ARM64...' &&
+        rustup target add $TARGET &&
+        echo 'Rust: $(rustc --version)' &&
+        echo 'Clang: $(clang --version | head -1)' &&
+        echo 'CMake: $(cmake --version | head -1)' &&
+        echo 'Target: $TARGET' &&
+        echo 'Build type: $BUILD_TYPE' &&
+        cargo build --target $TARGET --$BUILD_TYPE &&
+        cargo test --target $TARGET --$BUILD_TYPE &&
+        echo 'Cross-build completed successfully!'
+      "
+
+  hermetic-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.hermetic
+    volumes:
+      - .:/home/builder/matte-browser:ro
+      - cargo-cache:/home/builder/.cargo/registry
+      - cargo-target:/home/builder/matte-browser/target
+    working_dir: /home/builder/matte-browser
+    environment:
+      - RUSTFLAGS=-C target-feature=+crt-static
+      - CARGO_INCREMENTAL=0
+      - CFLAGS=-fPIC
+      - CXXFLAGS=-fPIC
+    command: >
+      bash -c "
+        echo 'Running tests in hermetic environment...' &&
+        echo 'Rust: $(rustc --version)' &&
+        echo 'Clang: $(clang --version | head -1)' &&
+        echo 'CMake: $(cmake --version | head -1)' &&
+        cargo test --release &&
+        echo 'Tests completed successfully!'
+      "
+
+volumes:
+  cargo-cache:
+    driver: local
+  cargo-target:
+    driver: local

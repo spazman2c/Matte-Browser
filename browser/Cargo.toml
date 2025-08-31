@@ -1,0 +1,43 @@
+[package]
+name = "browser"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[[bin]]
+name = "matte-browser"
+path = "src/main.rs"
+
+[dependencies]
+# Common dependencies
+common = { path = "../common" }
+
+# Core dependencies
+tokio = { workspace = true, features = ["full"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+log = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true, features = ["env-filter", "local-time"] }
+
+# Platform and UI
+winit = { workspace = true }
+wgpu = { workspace = true }
+raw-window-handle = { workspace = true }
+
+# Memory and performance
+parking_lot = { workspace = true }
+dashmap = { workspace = true }
+
+# Development and testing
+criterion = { workspace = true, optional = true }
+clap = { version = "4.0", features = ["derive"] }
+
+[dev-dependencies]
+tokio-test = "0.4"

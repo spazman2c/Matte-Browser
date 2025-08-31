@@ -1,0 +1,104 @@
+# Rust
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# C++ build artifacts
+/build/
+/out/
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# nyc test coverage
+.nyc_output
+
+# Dependency directories
+node_modules/
+
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
+
+# Temporary folders
+tmp/
+temp/
+
+# Browser-specific
+*.crash
+*.dmp
+crash-reports/
+user-data/
+session-data/
+
+# Test artifacts
+test-results/
+coverage-reports/
+
+# Documentation build
+docs/build/
+docs/_build/
+
+# Package files
+*.msi
+*.dmg
+*.deb
+*.rpm
+*.app
+
+# Symbol files
+*.pdb
+*.sym
+
+# Profiling data
+*.prof
+*.perf
+
+# Fuzzing artifacts
+fuzz/corpus/
+fuzz/artifacts/

@@ -1,0 +1,129 @@
+# Matte Browser - Pre-commit Hooks Configuration
+# This file configures pre-commit hooks for code quality checks
+
+repos:
+  # Rust-specific hooks
+  - repo: https://github.com/pre-commit/mirrors-rustfmt
+    rev: v1.5.1
+    hooks:
+      - id: rustfmt
+        args: [--edition=2021]
+        types: [rust]
+        additional_dependencies: [rustfmt]
+
+  - repo: https://github.com/pre-commit/mirrors-clippy
+    rev: v1.75.0
+    hooks:
+      - id: clippy
+        args: [--all-targets, --all-features, -- -D warnings]
+        types: [rust]
+        additional_dependencies: [clippy]
+
+  # General code quality hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      # File checks
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: check-docstring-first
+      
+      # Language-specific checks
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-ast
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-yaml
+      - id: debug-statements
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+      - id: name-tests-test
+      - id: requirements-txt-fixer
+      - id: trailing-whitespace
+
+  # Shell script checks
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.6
+    hooks:
+      - id: shellcheck
+        args: ['--severity=warning']
+        types: [shell]
+
+  # Markdown checks
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.37.0
+    hooks:
+      - id: markdownlint
+        args: ['--fix']
+        types: [markdown]
+
+  # License header checks
+  - repo: https://github.com/apache/skywalking-eyes
+    rev: v0.5.0
+    hooks:
+      - id: header
+        args: ['--license', 'Apache-2.0']
+
+  # Security checks
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+
+  # C/C++ specific hooks
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v17.0.6
+    hooks:
+      - id: clang-format
+        types: [c, c++]
+        args: ['-i']
+
+  # Custom hooks for Matte Browser
+  - repo: local
+    hooks:
+      - id: cargo-check
+        name: Cargo Check
+        entry: cargo check --all-targets --all-features
+        language: system
+        types: [rust]
+        pass_filenames: false
+
+      - id: cargo-test
+        name: Cargo Test
+        entry: cargo test --all-targets --all-features
+        language: system
+        types: [rust]
+        pass_filenames: false
+        stages: [manual]  # Only run manually, not on every commit
+
+      - id: cmake-configure
+        name: CMake Configure
+        entry: cmake -B build -S .
+        language: system
+        types: [file]
+        files: CMakeLists.txt
+        pass_filenames: false
+
+      - id: build-scripts-check
+        name: Build Scripts Check
+        entry: bash -c 'for script in scripts/*.sh; do bash -n "$script"; done'
+        language: system
+        types: [shell]
+        pass_filenames: false
+
+# Global configuration
+default_language_version:
+  python: python3
+  node: 18
+
+# Hook execution order
+fail_fast: false

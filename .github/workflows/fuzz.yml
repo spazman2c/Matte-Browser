@@ -1,0 +1,250 @@
+name: Nightly Fuzzing
+
+on:
+  schedule:
+    # Run every night at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch: # Allow manual triggering
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  fuzz:
+    name: Fuzz Testing
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - html-parser
+          - css-tokenizer
+          - url-parser
+          - ipc-message
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: 1.75.0
+          override: true
+          components: rustfmt, clippy
+
+      - name: Install fuzzing dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake pkg-config libssl-dev
+          sudo apt-get install -y libx11-dev libxrandr-dev libxfixes-dev libxcursor-dev
+          sudo apt-get install -y libxcomposite-dev libxdamage-dev libxext-dev libxrender-dev
+          sudo apt-get install -y libxss-dev libxtst-dev libnss3-dev libatk-bridge2.0-dev
+          sudo apt-get install -y libgtk-3-dev libgdk-pixbuf2.0-dev libasound2-dev
+          sudo apt-get install -y libpulse-dev libdbus-1-dev libudev-dev libevdev-dev
+          sudo apt-get install -y libinput-dev libxkbcommon-dev libwayland-dev
+          sudo apt-get install -y libxcb1-dev libxcb-render0-dev libxcb-shape0-dev
+          sudo apt-get install -y libxcb-xfixes0-dev libxcb-keysyms1-dev libxcb-icccm4-dev
+          sudo apt-get install -y libxcb-image0-dev libxcb-shm0-dev libxcb-util1-dev
+          sudo apt-get install -y libxcb-xinerama0-dev libxcb-xkb-dev libxkbcommon-x11-dev
+          sudo apt-get install -y libvulkan-dev libegl1-mesa-dev libgles2-mesa-dev
+          sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev libdrm-dev libgbm-dev
+          sudo apt-get install -y libxcb-dri3-dev libxcb-present-dev libxcb-sync-dev
+          sudo apt-get install -y libxcb-xf86dri-dev libxcb-dri2-dev libxcb-glx-dev
+          sudo apt-get install -y libxcb-xv-dev libxcb-randr0-dev libxcb-record0-dev
+          sudo apt-get install -y libxcb-xvmc-dev libxcb-xv0-dev libxcb-aux0-dev
+          sudo apt-get install -y libxcb-event-dev libxcb-render-util0-dev libxcb-errors-dev
+
+      - name: Cache Rust dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-fuzz-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-fuzz-cargo-
+
+      - name: Install cargo-fuzz
+        run: cargo install cargo-fuzz
+
+      - name: Run fuzzing
+        run: |
+          echo "Running fuzzing for target: ${{ matrix.target }}"
+          
+          # Set up fuzzing environment
+          export RUSTFLAGS="-C target-feature=+crt-static"
+          
+          # Run fuzzing for specified duration (e.g., 10 minutes per target)
+          timeout 600 cargo fuzz run ${{ matrix.target }} -- -max_len=10000 -timeout=1
+          
+          echo "Fuzzing completed for ${{ matrix.target }}"
+
+      - name: Upload fuzzing artifacts
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: fuzz-artifacts-${{ matrix.target }}
+          path: |
+            fuzz/artifacts/${{ matrix.target }}/
+            fuzz/corpus/${{ matrix.target }}/
+
+  # Corpus management
+  corpus-update:
+    name: Update Fuzz Corpus
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: 1.75.0
+          override: true
+
+      - name: Install cargo-fuzz
+        run: cargo install cargo-fuzz
+
+      - name: Update corpus
+        run: |
+          # Update corpus with new test cases
+          for target in html-parser css-tokenizer url-parser ipc-message; do
+            echo "Updating corpus for $target"
+            cargo fuzz cmin $target
+          done
+
+      - name: Commit corpus updates
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add fuzz/corpus/
+          git commit -m "Update fuzz corpus" || echo "No corpus updates"
+          git push
+
+  # Fuzz regression testing
+  fuzz-regression:
+    name: Fuzz Regression Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: 1.75.0
+          override: true
+
+      - name: Install cargo-fuzz
+        run: cargo install cargo-fuzz
+
+      - name: Run regression tests
+        run: |
+          # Run quick regression tests on existing corpus
+          for target in html-parser css-tokenizer url-parser ipc-message; do
+            echo "Running regression tests for $target"
+            cargo fuzz run $target -- -runs=1000 -max_len=1000
+          done
+
+  # Fuzz coverage analysis
+  fuzz-coverage:
+    name: Fuzz Coverage Analysis
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: 1.75.0
+          override: true
+
+      - name: Install cargo-fuzz and grcov
+        run: |
+          cargo install cargo-fuzz
+          cargo install grcov
+
+      - name: Generate coverage report
+        run: |
+          # Set up coverage environment
+          export CARGO_INCREMENTAL=0
+          export RUSTFLAGS="-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort -Zpanic_abort_tests"
+          export RUSTDOCFLAGS="-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort -Zpanic_abort_tests"
+          export LLVM_PROFILE_FILE="fuzz-%p-%m.profraw"
+          
+          # Run fuzzing with coverage
+          for target in html-parser css-tokenizer url-parser ipc-message; do
+            echo "Generating coverage for $target"
+            cargo fuzz run $target -- -runs=10000 -max_len=1000
+          done
+          
+          # Generate coverage report
+          grcov . --binary-path ./target/debug/ -s . -t html --branch --ignore-not-existing -o ./coverage/
+          
+          # Generate coverage summary
+          grcov . --binary-path ./target/debug/ -s . -t markdown --branch --ignore-not-existing
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v3
+        with:
+          name: fuzz-coverage-report
+          path: coverage/
+
+  # Fuzz crash analysis
+  fuzz-crash-analysis:
+    name: Analyze Fuzz Crashes
+    runs-on: ubuntu-latest
+    if: failure()
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: 1.75.0
+          override: true
+
+      - name: Install analysis tools
+        run: |
+          cargo install cargo-fuzz
+          sudo apt-get update
+          sudo apt-get install -y gdb
+
+      - name: Download crash artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: fuzz-artifacts-html-parser
+
+      - name: Analyze crashes
+        run: |
+          # Analyze any crash artifacts
+          for artifact in fuzz-artifacts-*; do
+            if [ -d "$artifact" ]; then
+              echo "Analyzing crashes in $artifact"
+              # Run crash analysis
+              # This would typically involve running the crashing inputs
+              # and analyzing the stack traces
+            fi
+          done
+
+      - name: Create crash report
+        run: |
+          echo "# Fuzz Crash Analysis Report" > crash-report.md
+          echo "Generated: $(date)" >> crash-report.md
+          echo "" >> crash-report.md
+          echo "## Summary" >> crash-report.md
+          echo "Analysis of fuzzing crashes found during nightly run." >> crash-report.md
+          # Add more detailed analysis here
+
+      - name: Upload crash report
+        uses: actions/upload-artifact@v3
+        with:
+          name: fuzz-crash-report
+          path: crash-report.md

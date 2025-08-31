@@ -1,0 +1,148 @@
+# Matte Browser - Hermetic Build Environment
+# This Dockerfile provides a hermetic build environment for reproducible builds
+
+FROM ubuntu:22.04
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV RUST_VERSION=1.75.0
+ENV LLVM_VERSION=17.0.6
+ENV CMAKE_VERSION=3.28.1
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl \
+    git \
+    pkg-config \
+    libssl-dev \
+    libx11-dev \
+    libxrandr-dev \
+    libxfixes-dev \
+    libxcursor-dev \
+    libxcomposite-dev \
+    libxdamage-dev \
+    libxext-dev \
+    libxrender-dev \
+    libxss-dev \
+    libxtst-dev \
+    libnss3-dev \
+    libatk-bridge2.0-dev \
+    libgtk-3-dev \
+    libgdk-pixbuf2.0-dev \
+    libasound2-dev \
+    libpulse-dev \
+    libdbus-1-dev \
+    libudev-dev \
+    libevdev-dev \
+    libinput-dev \
+    libxkbcommon-dev \
+    libwayland-dev \
+    libxcb1-dev \
+    libxcb-render0-dev \
+    libxcb-shape0-dev \
+    libxcb-xfixes0-dev \
+    libxcb-keysyms1-dev \
+    libxcb-icccm4-dev \
+    libxcb-image0-dev \
+    libxcb-shm0-dev \
+    libxcb-util1-dev \
+    libxcb-xinerama0-dev \
+    libxcb-xkb-dev \
+    libxkbcommon-x11-dev \
+    libvulkan-dev \
+    libegl1-mesa-dev \
+    libgles2-mesa-dev \
+    libgl1-mesa-dev \
+    libglu1-mesa-dev \
+    libdrm-dev \
+    libgbm-dev \
+    libxcb-dri3-dev \
+    libxcb-present-dev \
+    libxcb-sync-dev \
+    libxcb-xf86dri-dev \
+    libxcb-dri2-dev \
+    libxcb-glx-dev \
+    libxcb-shape0-dev \
+    libxcb-xv-dev \
+    libxcb-randr0-dev \
+    libxcb-record0-dev \
+    libxcb-xvmc-dev \
+    libxcb-xv0-dev \
+    libxcb-xinerama0-dev \
+    libxcb-xkb-dev \
+    libxcb-keysyms1-dev \
+    libxcb-icccm4-dev \
+    libxcb-image0-dev \
+    libxcb-shm0-dev \
+    libxcb-util1-dev \
+    libxcb-aux0-dev \
+    libxcb-event-dev \
+    libxcb-render-util0-dev \
+    libxcb-errors-dev \
+    libxcb-util-dev \
+    libxcb-keysyms1-dev \
+    libxcb-icccm4-dev \
+    libxcb-image0-dev \
+    libxcb-shm0-dev \
+    libxcb-util1-dev \
+    libxcb-aux0-dev \
+    libxcb-event-dev \
+    libxcb-render-util0-dev \
+    libxcb-errors-dev \
+    libxcb-util-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Rust
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain $RUST_VERSION
+ENV PATH="/root/.cargo/bin:$PATH"
+
+# Install LLVM/Clang
+RUN curl -L -o llvm.tar.xz https://github.com/llvm/llvm-project/releases/download/llvmorg-$LLVM_VERSION/clang+llvm-$LLVM_VERSION-x86_64-linux-gnu-ubuntu-20.04.tar.xz \
+    && tar -xJf llvm.tar.xz -C /opt \
+    && ln -s /opt/clang+llvm-$LLVM_VERSION-x86_64-linux-gnu-ubuntu-20.04 /opt/llvm \
+    && rm llvm.tar.xz
+
+# Install CMake
+RUN curl -L -o cmake.tar.gz https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION-linux-x86_64.tar.gz \
+    && tar -xzf cmake.tar.gz -C /opt \
+    && ln -s /opt/cmake-$CMAKE_VERSION-linux-x86_64 /opt/cmake \
+    && rm cmake.tar.gz
+
+# Set up environment
+ENV PATH="/opt/llvm/bin:/opt/cmake/bin:$PATH"
+ENV CC="/opt/llvm/bin/clang"
+ENV CXX="/opt/llvm/bin/clang++"
+ENV AR="/opt/llvm/bin/llvm-ar"
+ENV LD="/opt/llvm/bin/ld64.lld"
+ENV RANLIB="/opt/llvm/bin/llvm-ranlib"
+ENV STRIP="/opt/llvm/bin/llvm-strip"
+
+# Create build user
+RUN useradd -m -s /bin/bash builder
+USER builder
+WORKDIR /home/builder
+
+# Set up Rust for builder user
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain $RUST_VERSION
+ENV PATH="/home/builder/.cargo/bin:$PATH"
+
+# Create build script
+RUN echo '#!/bin/bash\n\
+set -e\n\
+echo "Building Matte Browser in hermetic environment..."\n\
+echo "Rust: $(rustc --version)"\n\
+echo "Clang: $(clang --version | head -1)"\n\
+echo "CMake: $(cmake --version | head -1)"\n\
+\n\
+# Build the project\n\
+cargo build --release\n\
+\n\
+# Run tests\n\
+cargo test --release\n\
+\n\
+echo "Build completed successfully!"' > /home/builder/build.sh \
+    && chmod +x /home/builder/build.sh
+
+# Default command
+CMD ["/home/builder/build.sh"]
