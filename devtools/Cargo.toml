@@ -1,0 +1,31 @@
+[package]
+name = "devtools"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[dependencies]
+# Core dependencies
+tokio = { workspace = true, features = ["full"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+log = { workspace = true }
+
+# Memory and performance
+parking_lot = { workspace = true }
+dashmap = { workspace = true }
+
+# UUID generation
+uuid = { workspace = true, features = ["v4"] }
+
+# Development and testing
+tempfile = "3.0"
+
+[dev-dependencies]
+tokio-test = "0.4"

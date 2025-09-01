@@ -546,71 +546,71 @@ Matte is a fast, private, and developer-friendly browser built from scratch with
 ### M2.4: DevTools Implementation (Months 13-14)
 
 #### Elements & Styles Inspector
-- [ ] **DOM Inspector**
-  - [ ] Create DOM tree view
-  - [ ] Implement element selection
-  - [ ] Set up attribute editing
-  - [ ] Create element highlighting
+- [x] **DOM Inspector**
+  - [x] Create DOM tree view
+  - [x] Implement element selection
+  - [x] Set up attribute editing
+  - [x] Create element highlighting
 
-- [ ] **Styles Inspector**
-  - [ ] Implement computed styles view
-  - [ ] Create style editing
-  - [ ] Set up box model display
-  - [ ] Implement layout overlays
+- [x] **Styles Inspector**
+  - [x] Implement computed styles view
+  - [x] Create style editing
+  - [x] Set up box model display
+  - [x] Implement layout overlays
 
 #### Console & Network
-- [ ] **Console Implementation**
-  - [ ] Create console output
-  - [ ] Implement runtime evaluation
-  - [ ] Set up source maps
-  - [ ] Create stack trace display
+- [x] **Console Implementation**
+  - [x] Create console output
+  - [x] Implement runtime evaluation
+  - [x] Set up source maps
+  - [x] Create stack trace display
 
-- [ ] **Network Inspector**
-  - [ ] Implement request/response view
-  - [ ] Create waterfall display
-  - [ ] Set up HAR export
-  - [ ] Implement timing analysis
+- [x] **Network Inspector**
+  - [x] Implement request/response view
+  - [x] Create waterfall display
+  - [x] Set up HAR export
+  - [x] Implement timing analysis
 
 #### Performance Tools
-- [ ] **Performance Profiler**
-  - [ ] Create flamegraphs
-  - [ ] Implement FPS meter
-  - [ ] Set up memory snapshots
-  - [ ] Create performance timeline
+- [x] **Performance Profiler**
+  - [x] Create flamegraphs
+  - [x] Implement FPS meter
+  - [x] Set up memory snapshots
+  - [x] Create performance timeline
 
-- [ ] **Remote Debugging**
-  - [ ] Implement Matte DevTools Protocol (MDP)
-  - [ ] Create WebSocket/pipe communication
-  - [ ] Set up headless mode
-  - [ ] Implement remote debugging client
+- [x] **Remote Debugging**
+  - [x] Implement Matte DevTools Protocol (MDP)
+  - [x] Create WebSocket/pipe communication
+  - [x] Set up headless mode
+  - [x] Implement remote debugging client
 
 ### M2.5: Accessibility & Input (Months 14-15)
 
 #### Accessibility Tree
-- [ ] **Platform Integration**
-  - [ ] Implement UIA (Windows)
-  - [ ] Create AXAPI (macOS)
-  - [ ] Set up AT-SPI (Linux)
-  - [ ] Implement accessibility tree export
+- [x] **Platform Integration**
+  - [x] Implement UIA (Windows)
+  - [x] Create AXAPI (macOS)
+  - [x] Set up AT-SPI (Linux)
+  - [x] Implement accessibility tree export
 
-- [ ] **ARIA Support**
-  - [ ] Implement core ARIA roles
-  - [ ] Create ARIA states and properties
-  - [ ] Set up ARIA live regions
-  - [ ] Implement ARIA landmarks
+- [x] **ARIA Support**
+  - [x] Implement core ARIA roles
+  - [x] Create ARIA states and properties
+  - [x] Set up ARIA live regions
+  - [x] Implement ARIA landmarks
 
 #### Input Handling
-- [ ] **Keyboard Navigation**
-  - [ ] Implement tab navigation
-  - [ ] Create keyboard shortcuts
-  - [ ] Set up focus management
-  - [ ] Implement caret browsing
+- [x] **Keyboard Navigation**
+  - [x] Implement tab navigation
+  - [x] Create keyboard shortcuts
+  - [x] Set up focus management
+  - [x] Implement caret browsing
 
-- [ ] **Mouse & Touch**
-  - [ ] Implement mouse event handling
-  - [ ] Create touch event support
-  - [ ] Set up gesture recognition
-  - [ ] Implement IME support
+- [x] **Mouse & Touch**
+  - [x] Implement mouse event handling
+  - [x] Create touch event support
+  - [x] Set up gesture recognition
+  - [x] Implement IME support
 
 ---
 
