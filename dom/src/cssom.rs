@@ -5,6 +5,7 @@
 
 use crate::error::{Error, Result};
 use crate::css_selector::SelectorList;
+use crate::css_at_rules::AtRule;
 
 /// CSS rule types
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -178,7 +179,7 @@ impl CssDeclaration {
 }
 
 /// CSS style rule
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct CssStyleRule {
     /// Selector list for this rule
     pub selectors: SelectorList,
@@ -252,6 +253,15 @@ pub trait CssRule {
     fn set_parent_stylesheet(&mut self, stylesheet: &CssStyleSheet);
 }
 
+/// CSS rule enum that can represent both style rules and at-rules
+#[derive(Debug, Clone, PartialEq)]
+pub enum CssRuleVariant {
+    /// Style rule
+    StyleRule(CssStyleRule),
+    /// At-rule
+    AtRule(AtRule),
+}
+
 impl CssRule for CssStyleRule {
     fn rule_type(&self) -> CssRuleType {
         self.rule_type.clone()
@@ -298,10 +308,142 @@ impl CssRule for CssStyleRule {
     }
 }
 
+impl CssRuleVariant {
+    /// Get the rule type
+    pub fn rule_type(&self) -> CssRuleType {
+        match self {
+            CssRuleVariant::StyleRule(rule) => rule.rule_type(),
+            CssRuleVariant::AtRule(at_rule) => match at_rule {
+                AtRule::Import { .. } => CssRuleType::Import,
+                AtRule::Media { .. } => CssRuleType::Media,
+                AtRule::FontFace { .. } => CssRuleType::FontFace,
+                AtRule::Keyframes { .. } => CssRuleType::Keyframes,
+                AtRule::Page { .. } => CssRuleType::Page,
+                AtRule::Supports { .. } => CssRuleType::Supports,
+                AtRule::Charset { .. } => CssRuleType::Import, // Charset is handled like import
+                AtRule::Namespace { .. } => CssRuleType::Namespace,
+                AtRule::Viewport { .. } => CssRuleType::Viewport,
+                AtRule::Document { .. } => CssRuleType::Document,
+                AtRule::CounterStyle { .. } => CssRuleType::CounterStyle,
+                AtRule::FontFeatureValues { .. } => CssRuleType::FontFeatureValues,
+            },
+        }
+    }
+    
+    /// Get the CSS text representation
+    pub fn css_text(&self) -> String {
+        match self {
+            CssRuleVariant::StyleRule(rule) => rule.css_text(),
+            CssRuleVariant::AtRule(at_rule) => match at_rule {
+                AtRule::Import { url, media_list } => {
+                    let mut css = format!("@import url('{}')", url);
+                    if !media_list.is_empty() {
+                        css.push_str(&format!(" {}", media_list.join(", ")));
+                    }
+                    css.push(';');
+                    css
+                }
+                AtRule::Media { media_query, rules } => {
+                    let mut css = format!("@media {} {{", media_query);
+                    for rule in rules {
+                        css.push_str(&format!(" {}", rule.css_text()));
+                    }
+                    css.push_str(" }");
+                    css
+                }
+                AtRule::FontFace { declarations } => {
+                    let mut css = "@font-face {".to_string();
+                    for (property, value) in declarations {
+                        css.push_str(&format!(" {}: {};", property, value));
+                    }
+                    css.push_str(" }");
+                    css
+                }
+                AtRule::Keyframes { name, keyframes } => {
+                    let mut css = format!("@keyframes {} {{", name);
+                    for keyframe in keyframes {
+                        css.push_str(&format!(" {} {{", keyframe.selectors.join(", ")));
+                        for (property, value) in &keyframe.declarations {
+                            css.push_str(&format!(" {}: {};", property, value));
+                        }
+                        css.push_str(" }");
+                    }
+                    css.push_str(" }");
+                    css
+                }
+                AtRule::Page { selector, declarations } => {
+                    let mut css = if selector.is_empty() {
+                        "@page {".to_string()
+                    } else {
+                        format!("@page {} {{", selector)
+                    };
+                    for (property, value) in declarations {
+                        css.push_str(&format!(" {}: {};", property, value));
+                    }
+                    css.push_str(" }");
+                    css
+                }
+                AtRule::Supports { condition, rules } => {
+                    let mut css = format!("@supports {} {{", condition);
+                    for rule in rules {
+                        css.push_str(&format!(" {}", rule.css_text()));
+                    }
+                    css.push_str(" }");
+                    css
+                }
+                AtRule::Charset { encoding } => {
+                    format!("@charset \"{}\";", encoding)
+                }
+                AtRule::Namespace { prefix, uri } => {
+                    if let Some(prefix) = prefix {
+                        format!("@namespace {} \"{}\";", prefix, uri)
+                    } else {
+                        format!("@namespace \"{}\";", uri)
+                    }
+                }
+                AtRule::Viewport { declarations } => {
+                    let mut css = "@viewport {".to_string();
+                    for (property, value) in declarations {
+                        css.push_str(&format!(" {}: {};", property, value));
+                    }
+                    css.push_str(" }");
+                    css
+                }
+                AtRule::Document { url_pattern, rules } => {
+                    let mut css = format!("@document url(\"{}\") {{", url_pattern);
+                    for rule in rules {
+                        css.push_str(&format!(" {}", rule.css_text()));
+                    }
+                    css.push_str(" }");
+                    css
+                }
+                AtRule::CounterStyle { name, declarations } => {
+                    let mut css = format!("@counter-style {} {{", name);
+                    for (property, value) in declarations {
+                        css.push_str(&format!(" {}: {};", property, value));
+                    }
+                    css.push_str(" }");
+                    css
+                }
+                AtRule::FontFeatureValues { font_family, feature_values } => {
+                    let mut css = format!("@font-feature-values {} {{", font_family);
+                    for (feature, values) in feature_values {
+                        css.push_str(&format!(" @{} {{", feature));
+                        css.push_str(&format!(" {};", values.join(", ")));
+                        css.push_str(" }");
+                    }
+                    css.push_str(" }");
+                    css
+                }
+            },
+        }
+    }
+}
+
 /// CSS stylesheet
 pub struct CssStyleSheet {
     /// Rules in this stylesheet
-    pub rules: Vec<Box<dyn CssRule>>,
+    pub rules: Vec<CssRuleVariant>,
     /// Whether the stylesheet is disabled
     pub disabled: bool,
     /// Href of the stylesheet (if external)
@@ -325,12 +467,17 @@ impl CssStyleSheet {
     }
     
     /// Add a rule to the stylesheet
-    pub fn add_rule(&mut self, rule: Box<dyn CssRule>) {
+    pub fn add_rule(&mut self, rule: CssRuleVariant) {
         self.rules.push(rule);
     }
     
+    /// Add an at-rule to the stylesheet
+    pub fn add_at_rule(&mut self, at_rule: AtRule) {
+        self.rules.push(CssRuleVariant::AtRule(at_rule));
+    }
+    
     /// Insert a rule at a specific index
-    pub fn insert_rule(&mut self, rule: Box<dyn CssRule>, index: usize) -> Result<()> {
+    pub fn insert_rule(&mut self, rule: CssRuleVariant, index: usize) -> Result<()> {
         if index > self.rules.len() {
             return Err(Error::ConfigError("Index out of bounds".to_string()));
         }
@@ -339,7 +486,7 @@ impl CssStyleSheet {
     }
     
     /// Remove a rule at a specific index
-    pub fn remove_rule(&mut self, index: usize) -> Result<Box<dyn CssRule>> {
+    pub fn remove_rule(&mut self, index: usize) -> Result<CssRuleVariant> {
         if index >= self.rules.len() {
             return Err(Error::ConfigError("Index out of bounds".to_string()));
         }
@@ -347,8 +494,8 @@ impl CssStyleSheet {
     }
     
     /// Get a rule at a specific index
-    pub fn get_rule(&self, index: usize) -> Option<&dyn CssRule> {
-        self.rules.get(index).map(|r| r.as_ref())
+    pub fn get_rule(&self, index: usize) -> Option<&CssRuleVariant> {
+        self.rules.get(index)
     }
     
     /// Get the number of rules
@@ -357,7 +504,7 @@ impl CssStyleSheet {
     }
     
     /// Get all rules
-    pub fn rules(&self) -> &[Box<dyn CssRule>] {
+    pub fn rules(&self) -> &[CssRuleVariant] {
         &self.rules
     }
     

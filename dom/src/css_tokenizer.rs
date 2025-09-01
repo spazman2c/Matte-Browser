@@ -5,6 +5,7 @@
 
 use tracing::debug;
 use crate::error::{Error, Result};
+use std::fmt;
 
 /// CSS token types
 #[derive(Debug, Clone, PartialEq)]
@@ -59,6 +60,38 @@ pub enum CssToken {
     Comment(String),
     /// End of file
     Eof,
+}
+
+impl fmt::Display for CssToken {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            CssToken::Ident(ident) => write!(f, "{}", ident),
+            CssToken::Number(num) => write!(f, "{}", num),
+            CssToken::Percentage(pct) => write!(f, "{}%", pct),
+            CssToken::Dimension(num, unit) => write!(f, "{}{}", num, unit),
+            CssToken::String(s) => write!(f, "\"{}\"", s),
+            CssToken::Url(url) => write!(f, "url({})", url),
+            CssToken::Hash(hash) => write!(f, "#{}", hash),
+            CssToken::Delim(c) => write!(f, "{}", c),
+            CssToken::AtKeyword(keyword) => write!(f, "@{}", keyword),
+            CssToken::Function(name) => write!(f, "{}(", name),
+            CssToken::Comma => write!(f, ","),
+            CssToken::Semicolon => write!(f, ";"),
+            CssToken::Colon => write!(f, ":"),
+            CssToken::Whitespace => write!(f, " "),
+            CssToken::Comment(comment) => write!(f, "/*{}*/", comment),
+            CssToken::BadUrl => write!(f, "bad-url"),
+            CssToken::BadString => write!(f, "bad-string"),
+            CssToken::LeftParen => write!(f, "("),
+            CssToken::RightParen => write!(f, ")"),
+            CssToken::LeftBracket => write!(f, "["),
+            CssToken::RightBracket => write!(f, "]"),
+            CssToken::LeftBrace => write!(f, "{{"),
+            CssToken::RightBrace => write!(f, "}}"),
+            CssToken::UnicodeRange(start, end) => write!(f, "U+{:X}-{:X}", start, end),
+            CssToken::Eof => write!(f, ""),
+        }
+    }
 }
 
 /// CSS Tokenizer for parsing CSS input

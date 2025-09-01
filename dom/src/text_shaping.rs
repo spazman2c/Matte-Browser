@@ -211,14 +211,14 @@ impl TextShaper {
     }
     
     /// Get glyph ID for a code point
-    fn get_glyph_id(&self, font_face: &FontFace, code_point: u32) -> u16 {
+    fn get_glyph_id(&self, _font_face: &FontFace, code_point: u32) -> u16 {
         // This is a simplified implementation
         // In a real browser, you would parse the font's cmap table
         code_point as u16
     }
     
     /// Get advance width for a code point
-    fn get_advance_width(&self, font_face: &FontFace, code_point: u32) -> f32 {
+    fn get_advance_width(&self, _font_face: &FontFace, code_point: u32) -> f32 {
         // This is a simplified implementation
         // In a real browser, you would use the font's hmtx table
         match code_point {
@@ -230,7 +230,7 @@ impl TextShaper {
     }
     
     /// Apply kerning to glyphs
-    fn apply_kerning(&mut self, glyphs: &mut Vec<ShapedGlyph>, font_face: &FontFace) {
+    fn apply_kerning(&mut self, glyphs: &mut Vec<ShapedGlyph>, _font_face: &FontFace) {
         for i in 1..glyphs.len() {
             let prev_glyph_id = glyphs[i - 1].glyph_id;
             let curr_glyph_id = glyphs[i].glyph_id;
@@ -244,7 +244,7 @@ impl TextShaper {
     }
     
     /// Apply ligatures to glyphs
-    fn apply_ligatures(&mut self, glyphs: &mut Vec<ShapedGlyph>, font_face: &FontFace) {
+    fn apply_ligatures(&mut self, glyphs: &mut Vec<ShapedGlyph>, _font_face: &FontFace) {
         // This is a simplified implementation
         // In a real browser, you would use the font's GSUB table
         

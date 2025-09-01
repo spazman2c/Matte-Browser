@@ -240,7 +240,7 @@ Matte is a fast, private, and developer-friendly browser built from scratch with
           - [x] Implement event listener management
 
 - [x] **Advanced DOM Features**
-  - [ ] Implement Shadow DOM (closed in Phase 1)
+  - [x] Implement Shadow DOM (closed in Phase 1)
   - [ ] Create Custom Elements framework (Phase 2)
   - [x] Set up MutationObserver
   - [x] Implement DOM traversal APIs
@@ -264,8 +264,8 @@ Matte is a fast, private, and developer-friendly browser built from scratch with
 - [x] **CSS Tokenization**
   - [x] Implement CSS tokenizer
   - [x] Create parser for selectors
-  - [ ] Set up property value parsing
-  - [ ] Implement at-rule handling
+  - [x] Set up property value parsing
+  - [x] Implement at-rule handling
 
 - [x] **CSSOM**
   - [x] Create CSSStyleSheet interface
@@ -281,10 +281,10 @@ Matte is a fast, private, and developer-friendly browser built from scratch with
   - [ ] Implement :has() selector (later)
 
 - [ ] **Selector Optimization**
-  - [ ] Create selector indexing
-  - [ ] Implement fast path matching
-  - [ ] Set up selector specificity calculation
-  - [ ] Create selector caching
+  - [x] Create selector indexing
+  - [x] Implement fast path matching
+  - [x] Set up selector specificity calculation
+  - [x] Create selector caching
 
 #### Layout Engine
 - [x] **Block & Inline Layout**
@@ -312,11 +312,11 @@ Matte is a fast, private, and developer-friendly browser built from scratch with
   - [x] Set up font metrics calculation
   - [x] Implement font caching
 
-- [ ] **Text Shaping**
-  - [ ] Integrate HarfBuzz or build text shaping
-  - [ ] Implement bidirectional text support
-  - [ ] Create line breaking (Unicode)
-  - [ ] Set up kerning and ligatures
+- [x] **Text Shaping**
+  - [x] Integrate HarfBuzz or build text shaping
+  - [x] Implement bidirectional text support
+  - [x] Create line breaking (Unicode)
+  - [x] Set up kerning and ligatures
 
 ### M1.3: JavaScript Engine - MatteJS (Months 6-7)
 

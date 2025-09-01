@@ -39,4 +39,14 @@ pub use typography::{FontManager, FontFace, FontFamily, FontWeight, FontStyle, F
 
 pub mod text_shaping;
 pub use text_shaping::{TextShaper, ShapedGlyph, ShapedTextRun, CharProperties, CharCategory, BidiClass, TextDirection, LineBreakOpportunity, LineBreakType};
+
+pub mod shadow_dom;
+pub use shadow_dom::{ShadowRoot, ShadowRootMode, ShadowDomManager};
+
+pub mod css_property_parser;
+pub use css_property_parser::{CssPropertyParser, PropertyValue, LengthUnit, ColorValue};
+pub mod css_at_rules;
+pub use css_at_rules::{AtRule, KeyframeRule, AtRuleParser, AtRuleManager, AtRuleHandler};
+pub mod selector_indexing;
+pub use selector_indexing::{SelectorIndex, SelectorIndexEntry, SelectorIndexStats, IndexedSelectorMatcher};
 pub use error::{Error, Result};
