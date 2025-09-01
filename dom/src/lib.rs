@@ -49,4 +49,6 @@ pub mod css_at_rules;
 pub use css_at_rules::{AtRule, KeyframeRule, AtRuleParser, AtRuleManager, AtRuleHandler};
 pub mod selector_indexing;
 pub use selector_indexing::{SelectorIndex, SelectorIndexEntry, SelectorIndexStats, IndexedSelectorMatcher};
+pub mod grid_layout;
+pub use grid_layout::{GridLayoutEngine, GridContainer, GridItem, GridTemplate, GridLine, GridTemplateUnit, GridArea, GridItemPlacement, GridAlignment, GridDirection};
 pub use error::{Error, Result};

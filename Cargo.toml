@@ -11,7 +11,7 @@ members = [
     "graphics",
     "platform",
     "common",
-    "tools",
+    "tools", "js_engine",
 ]
 
 resolver = "2"

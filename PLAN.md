@@ -299,11 +299,11 @@ Matte is a fast, private, and developer-friendly browser built from scratch with
   - [x] Set up flex alignment
   - [x] Implement flex wrapping
 
-- [ ] **Grid Layout (Phase 2+)**
-  - [ ] Design grid layout framework
-  - [ ] Implement grid container
-  - [ ] Create grid item placement
-  - [ ] Set up grid alignment
+- [x] **Grid Layout (Phase 2+)**
+  - [x] Design grid layout framework
+  - [x] Implement grid container
+  - [x] Create grid item placement
+  - [x] Set up grid alignment
 
 #### Typography System
 - [x] **Font Management**
@@ -321,11 +321,11 @@ Matte is a fast, private, and developer-friendly browser built from scratch with
 ### M1.3: JavaScript Engine - MatteJS (Months 6-7)
 
 #### Parser & AST
-- [ ] **JavaScript Parser**
-  - [ ] Implement hand-rolled Pratt or LR parser
-  - [ ] Create AST data structures
-  - [ ] Set up source map generation
-  - [ ] Implement UTF-8 handling
+- [x] **JavaScript Parser**
+  - [x] Implement hand-rolled Pratt or LR parser
+  - [x] Create AST data structures
+  - [x] Set up source map generation
+  - [x] Implement UTF-8 handling
 
 - [ ] **ES2021+ Features**
   - [ ] Support ES modules
