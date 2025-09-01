@@ -461,74 +461,74 @@ Matte is a fast, private, and developer-friendly browser built from scratch with
 ### M2.1: Advanced Layout & Styling (Months 10-11)
 
 #### Complete Flexbox
-- [ ] **Flexbox Refinement**
-  - [ ] Complete flex container implementation
-  - [ ] Implement all flex item properties
-  - [ ] Create flex alignment and justification
-  - [ ] Set up flex wrapping and direction
+- [x] **Flexbox Refinement**
+  - [x] Complete flex container implementation
+  - [x] Implement all flex item properties
+  - [x] Create flex alignment and justification
+  - [x] Set up flex wrapping and direction
 
 #### Grid Layout (Phase 2)
-- [ ] **CSS Grid**
-  - [ ] Implement grid container
-  - [ ] Create grid item placement
-  - [ ] Set up grid alignment
-  - [ ] Implement grid areas and templates
+- [x] **CSS Grid**
+  - [x] Implement grid container
+  - [x] Create grid item placement
+  - [x] Set up grid alignment
+  - [x] Implement grid areas and templates
 
 #### Advanced Typography
-- [ ] **Text Shaping**
-  - [ ] Complete HarfBuzz integration
-  - [ ] Implement bidirectional text
-  - [ ] Create line breaking (Unicode)
-  - [ ] Set up kerning and ligatures
+- [x] **Text Shaping**
+  - [x] Complete HarfBuzz integration
+  - [x] Implement bidirectional text
+  - [x] Create line breaking (Unicode)
+  - [x] Set up kerning and ligatures
 
-- [ ] **Font Loading**
-  - [ ] Implement @font-face support
-  - [ ] Create font loading API
-  - [ ] Set up unicode-range support
-  - [ ] Implement font display strategies
+- [x] **Font Loading**
+  - [x] Implement @font-face support
+  - [x] Create font loading API
+  - [x] Set up unicode-range support
+  - [x] Implement font display strategies
 
 ### M2.2: Canvas & Media (Months 11-12)
 
 #### Canvas 2D
-- [ ] **Canvas Implementation**
-  - [ ] Create canvas element
-  - [ ] Implement 2D context
-  - [ ] Set up drawing operations
-  - [ ] Create image data handling
+- [x] **Canvas Implementation**
+  - [x] Create canvas element
+  - [x] Implement 2D context
+  - [x] Set up drawing operations
+  - [x] Create image data handling
 
-- [ ] **Canvas Features**
-  - [ ] Implement path drawing
-  - [ ] Create text rendering
-  - [ ] Set up transformations
-  - [ ] Implement compositing operations
+- [x] **Canvas Features**
+  - [x] Implement path drawing
+  - [x] Create text rendering
+  - [x] Set up transformations
+  - [x] Implement compositing operations
 
 #### Basic Media Support
-- [ ] **Audio Output**
-  - [ ] Implement WASAPI/CoreAudio/PulseAudio
-  - [ ] Create audio context
-  - [ ] Set up audio playback
-  - [ ] Implement volume control
+- [x] **Audio Output**
+  - [x] Implement WASAPI/CoreAudio/PulseAudio
+  - [x] Create audio context
+  - [x] Set up audio playback
+  - [x] Implement volume control
 
-- [ ] **Video Support**
-  - [ ] Implement software video decoding
-  - [ ] Create VP9/AV1 support (royalty-free)
-  - [ ] Set up video element
-  - [ ] Implement basic video controls
+- [x] **Video Support**
+  - [x] Implement software video decoding
+  - [x] Create VP9/AV1 support (royalty-free)
+  - [x] Set up video element
+  - [x] Implement basic video controls
 
 ### M2.3: Storage & Persistence (Months 12-13)
 
 #### Web Storage
-- [ ] **localStorage/sessionStorage**
-  - [ ] Complete localStorage implementation
-  - [ ] Create sessionStorage support
-  - [ ] Set up storage partitioning
-  - [ ] Implement quota management
+- [x] **localStorage/sessionStorage**
+  - [x] Complete localStorage implementation
+  - [x] Create sessionStorage support
+  - [x] Set up storage partitioning
+  - [x] Implement quota management
 
-- [ ] **IndexedDB (Phase 2)**
-  - [ ] Design IndexedDB architecture
-  - [ ] Implement database creation
-  - [ ] Create object store support
-  - [ ] Set up transaction handling
+- [x] **IndexedDB (Phase 2)**
+  - [x] Design IndexedDB architecture
+  - [x] Implement database creation
+  - [x] Create object store support
+  - [x] Set up transaction handling
 
 #### Cookie Management
 - [ ] **Cookie Implementation**

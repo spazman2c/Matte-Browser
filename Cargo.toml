@@ -12,6 +12,7 @@ members = [
     "platform",
     "common",
     "tools", "js_engine",
+    "storage",
 ]
 
 resolver = "2"
