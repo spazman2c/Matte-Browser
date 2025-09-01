@@ -2,6 +2,7 @@ pub mod error;
 pub mod http;
 pub mod tls;
 pub mod security;
+pub mod cache;
 
 pub use error::{Error, Result};
 pub use http::{
@@ -21,6 +22,11 @@ pub use security::{
     CoopPolicy, CoopValue, CoepPolicy, CoepValue,
     SecurityContext, SecurityManager, GlobalSecurityPolicies, SecurityUtils,
 };
+pub use cache::{
+    CacheStatus, CacheEntry, CacheControl, CachePartition, EvictionPolicy,
+    CacheStats, CacheWarmingEntry, CacheAnalytics, MemoryCache, DiskCache,
+    CacheConfig, CacheManager, CacheWarmingManager,
+};
 
 #[cfg(test)]
 mod http_test;
@@ -28,3 +34,5 @@ mod http_test;
 mod tls_test;
 #[cfg(test)]
 mod security_test;
+#[cfg(test)]
+mod cache_test;

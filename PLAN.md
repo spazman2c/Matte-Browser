@@ -401,45 +401,45 @@ Matte is a fast, private, and developer-friendly browser built from scratch with
   - [x] Implement COOP/COEP
 
 #### Caching System
-- [ ] **HTTP Cache**
-  - [ ] Implement disk cache
-  - [ ] Create memory cache
-  - [ ] Set up cache partitioning by site
-  - [ ] Implement validation and revalidation
+- [x] **HTTP Cache**
+  - [x] Implement disk cache
+  - [x] Create memory cache
+  - [x] Set up cache partitioning by site
+  - [x] Implement validation and revalidation
 
-- [ ] **Cache Management**
-  - [ ] Create cache eviction policies
-  - [ ] Implement cache size limits
-  - [ ] Set up cache warming
-  - [ ] Create cache analytics
+- [x] **Cache Management**
+  - [x] Create cache eviction policies
+  - [x] Implement cache size limits
+  - [x] Set up cache warming
+  - [x] Create cache analytics
 
 ### M1.5: Graphics & Compositor (Months 8-9)
 
 #### GPU Backend
-- [ ] **Graphics Abstraction**
-  - [ ] Implement wgpu or custom backends
-  - [ ] Create Vulkan/Metal/D3D12 support
-  - [ ] Set up software raster fallback
-  - [ ] Implement headless rendering
+- [x] **Graphics Abstraction**
+  - [x] Implement wgpu or custom backends
+  - [x] Create Vulkan/Metal/D3D12 support
+  - [x] Set up software raster fallback
+  - [x] Implement headless rendering
 
-- [ ] **Display Lists**
-  - [ ] Complete display list implementation
-  - [ ] Create tiled raster support
-  - [ ] Implement partial invalidation
-  - [ ] Set up layer management
+- [x] **Display Lists**
+  - [x] Complete display list implementation
+  - [x] Create tiled raster support
+  - [x] Implement partial invalidation
+  - [x] Set up layer management
 
 #### Compositor
-- [ ] **Compositing Engine**
-  - [ ] Implement layer tree management
-  - [ ] Create stacking contexts
-  - [ ] Set up transform handling
-  - [ ] Implement opacity and blending
+- [x] **Compositing Engine**
+  - [x] Implement layer tree management
+  - [x] Create stacking contexts
+  - [x] Set up transform handling
+  - [x] Implement opacity and blending
 
-- [ ] **Scheduler**
-  - [ ] Create V-sync aligned scheduler
-  - [ ] Implement frame budget accounting
-  - [ ] Set up input/animation/raster phases
-  - [ ] Create frame pacing
+- [x] **Scheduler**
+  - [x] Create V-sync aligned scheduler
+  - [x] Implement frame budget accounting
+  - [x] Set up input/animation/raster phases
+  - [x] Create frame pacing
 
 #### Effects & Transforms
 - [ ] **Basic Effects**
