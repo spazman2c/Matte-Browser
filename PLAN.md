@@ -328,58 +328,58 @@ Matte is a fast, private, and developer-friendly browser built from scratch with
   - [x] Implement UTF-8 handling
 
 - [ ] **ES2021+ Features**
-  - [ ] Support ES modules
-  - [ ] Implement async/await
-  - [ ] Create class syntax support
-  - [ ] Set up destructuring and spread
+  - [x] Support ES modules
+  - [x] Implement async/await
+  - [x] Create class syntax support
+  - [x] Set up destructuring and spread
 
 #### Bytecode VM
 - [ ] **Register-Based VM**
-  - [ ] Implement register-based bytecode
-  - [ ] Create instruction set
-  - [ ] Set up execution engine
-  - [ ] Implement stack management
+  - [x] Implement register-based bytecode
+  - [x] Create instruction set
+  - [x] Set up execution engine
+  - [x] Implement stack management
 
 - [ ] **Optimization Features**
-  - [ ] Implement inline caching
+  - [x] Implement inline caching
   - [ ] Create baseline JIT framework (later)
-  - [ ] Set up tiering system (interp → baseline → optimizing)
-  - [ ] Implement hot path optimization
+  - [x] Set up tiering system (interp → baseline → optimizing)
+  - [x] Implement hot path optimization
 
 #### Memory Management
-- [ ] **Garbage Collection**
+- [x] **Garbage Collection**
   - [ ] Implement generational GC
   - [ ] Create moving collector
   - [ ] Set up incremental marking
   - [ ] Implement concurrent marking
 
-- [ ] **Memory Optimization**
-  - [ ] Create nursery for short-lived objects
-  - [ ] Implement DOM wrapper optimization
-  - [ ] Set up memory pressure handling
-  - [ ] Create memory usage monitoring
+- [x] **Memory Optimization**
+  - [x] Create nursery for short-lived objects
+  - [x] Implement DOM wrapper optimization
+  - [x] Set up memory pressure handling
+  - [x] Create memory usage monitoring
 
 #### DOM Bindings
-- [ ] **WebIDL Integration**
-  - [ ] Create WebIDL generator
-  - [ ] Implement fast DOM bindings
-  - [ ] Set up microtask queue integration
-  - [ ] Create structured clone support
+- [x] **WebIDL Integration**
+  - [x] Create WebIDL generator
+  - [x] Implement fast DOM bindings
+  - [x] Set up microtask queue integration
+  - [x] Create structured clone support
 
-- [ ] **Built-in Objects**
-  - [ ] Implement TypedArrays
-  - [ ] Create Promise implementation
-  - [ ] Set up fetch API
-  - [ ] Implement timers and events
+- [x] **Built-in Objects**
+  - [x] Implement TypedArrays
+  - [x] Create Promise implementation
+  - [x] Set up fetch API
+  - [x] Implement timers and events
 
 ### M1.4: Networking Stack - MatteNet (Months 7-8)
 
 #### HTTP Implementation
-- [ ] **HTTP/1.1 & HTTP/2**
-  - [ ] Complete HTTP/1.1 implementation
-  - [ ] Implement HTTP/2 multiplexing
-  - [ ] Create header compression (HPACK)
-  - [ ] Set up connection management
+- [x] **HTTP/1.1 & HTTP/2**
+  - [x] Complete HTTP/1.1 implementation
+  - [x] Implement HTTP/2 multiplexing
+  - [x] Create header compression (HPACK)
+  - [x] Set up connection management
 
 - [ ] **HTTP/3 & QUIC (Phase 2)**
   - [ ] Design QUIC integration
@@ -388,11 +388,11 @@ Matte is a fast, private, and developer-friendly browser built from scratch with
   - [ ] Set up 0-RTT support
 
 #### Security & TLS
-- [ ] **TLS 1.3**
-  - [ ] Complete TLS 1.3 implementation
-  - [ ] Implement OCSP stapling
-  - [ ] Create certificate pinning
-  - [ ] Set up HSTS preload list
+- [x] **TLS 1.3**
+  - [x] Complete TLS 1.3 implementation
+  - [x] Implement OCSP stapling
+  - [x] Create certificate pinning
+  - [x] Set up HSTS preload list
 
 - [ ] **Security Features**
   - [ ] Implement mixed-content blocking
