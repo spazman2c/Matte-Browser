@@ -394,11 +394,11 @@ Matte is a fast, private, and developer-friendly browser built from scratch with
   - [x] Create certificate pinning
   - [x] Set up HSTS preload list
 
-- [ ] **Security Features**
-  - [ ] Implement mixed-content blocking
-  - [ ] Create CORB (Cross-Origin Read Blocking)
-  - [ ] Set up CORS handling
-  - [ ] Implement COOP/COEP
+- [x] **Security Features**
+  - [x] Implement mixed-content blocking
+  - [x] Create CORB (Cross-Origin Read Blocking)
+  - [x] Set up CORS handling
+  - [x] Implement COOP/COEP
 
 #### Caching System
 - [ ] **HTTP Cache**

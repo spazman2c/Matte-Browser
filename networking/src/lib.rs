@@ -1,6 +1,7 @@
 pub mod error;
 pub mod http;
 pub mod tls;
+pub mod security;
 
 pub use error::{Error, Result};
 pub use http::{
@@ -14,8 +15,16 @@ pub use tls::{
     OcspResponse, OcspResponseStatus, OcspCertStatus, CertificatePinning, HstsConfig, HstsEntry,
     TlsConfig, TlsSession, TlsConnectionState, TlsConnection, TlsClient, TlsServer, OcspResponder,
 };
+pub use security::{
+    ContentType, MixedContentType, MixedContentPolicy, MixedContentViolation,
+    CorbPolicy, CorbViolation, CorsPolicy, CorsRequest, CorsResponse,
+    CoopPolicy, CoopValue, CoepPolicy, CoepValue,
+    SecurityContext, SecurityManager, GlobalSecurityPolicies, SecurityUtils,
+};
 
 #[cfg(test)]
 mod http_test;
 #[cfg(test)]
 mod tls_test;
+#[cfg(test)]
+mod security_test;
